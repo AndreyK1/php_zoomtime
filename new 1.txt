@@ -1,0 +1,85 @@
+ 
+ 
+ <svg id="svg_table" version="1.1" width="1280" height="1024" viewBox="0 0 1280 1024" baseProfile="full" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+				  <text x="10" y="50" font-size="30">My SVG</text>
+				  <rect x="30" y="50" width="120" height="50" style="fill-opacity: 0.7; fill: red;"></rect>
+				<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
+	<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line></svg>
+ 
+ 
+ //если браузер поддерживает рисуем даты в SVG
+	   // http://wbtech.ru/blog/svg-images-and-backgrounds/
+function SVGRender(arrEv) { 	   
+		   var supportsSVG = !!document.createElementNS && !!document.createElementNS("http://www.w3.org/2000/svg", "svg").createSVGRect;
+		//После этой проверки легко найти все случаи использования SVG и заменить пути к векторным изображениям на пути к альтернативной растровой графике.
+
+		if(supportsSVG){
+			//scale
+			//alert("yes support");
+			
+			
+			console.log(nun_years);
+			console.log(year_begin);
+			console.log(JSON.stringify(arrEv));
+			
+			var svg = document.getElementById("svg_table");//.getSVGDocument();
+			var r= rect(20,30,100,100,"blue");
+			var c= circle(40,40,"red");
+			var l1= line(70,40,70,540,"green");
+			var l2= line(120,40,120,540,"green");
+
+			svg.appendChild(r);
+			svg.appendChild(l1);
+			svg.appendChild(l2);
+		//	svg.appendChild(c);
+//http://tutorials.jenkov.com/svg/scripting.html
+		//	r.x.baseVal.value=10;
+		//	r.y.baseVal.value=20;
+			//r.onclick=function(){ alert(10)};	
+			r.addEventListener("click", function(){ alert(110)}); //mouseover
+			
+			
+		}else{
+			//alert("not support");
+			//$('#svg_table').hide();
+			document.getElementById('svg_table').style.display = "none";
+			//document.getElementById('svg_table').style.display = 'none';
+		}
+}
+
+//добавление прямойгольников
+var rect=function(x,y,h,w,fill){
+ var NS="http://www.w3.org/2000/svg";
+ var SVGObj= document.createElementNS(NS,"rect");
+ SVGObj.x.baseVal.value=x;
+	SVGObj.y.baseVal.value=y;
+ SVGObj.width.baseVal.value=w;
+ SVGObj.height.baseVal.value=h;
+ SVGObj.setAttribute("height",h);
+ SVGObj.style.fill=fill;
+ return SVGObj;
+}
+
+var circle=function(cx,cy,fill){
+ var NS="http://www.w3.org/2000/svg";
+ var SVGObj= document.createElementNS(NS,"circle");
+    SVGObj.setAttribute('cx',cx);
+    SVGObj.setAttribute('cy',cy);
+    SVGObj.setAttribute('r',50);
+	SVGObj.setAttribute('fill',fill);
+	SVGObj.setAttribute('stroke','#006600');
+ return SVGObj;
+}
+
+var line=function(x1,y1,x2,y2,fill){
+ var NS="http://www.w3.org/2000/svg";
+ var SVGObj= document.createElementNS(NS,"line");
+    SVGObj.setAttribute('x1',x1);
+    SVGObj.setAttribute('y1',y1);
+    SVGObj.setAttribute('x2',x2);
+	SVGObj.setAttribute('y2',y2);
+	SVGObj.setAttribute('fill',fill);
+	SVGObj.setAttribute('stroke','#006600');
+ return SVGObj;
+}
+	
