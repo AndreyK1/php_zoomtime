@@ -1222,6 +1222,19 @@ echo "alPiks-".$alPiks."<br>";*/
 		//var_dump($ArrDMin);
 		?>
 		<br /><br /><p><b>По заданым критериям найдены следующие события/даты</b></p>
+		<svg id="svg_table" version="1.1" width="5280" height="524" 
+			<!--viewBox="0 0 1280 1024" baseProfile="full" -->
+			xmlns="http://www.w3.org/2000/svg" 
+			xmlns:xlink="http://www.w3.org/1999/xlink" 
+			xmlns:ev="http://www.w3.org/2001/xml-events">
+					<!--  <text x="10" y="50" font-size="30">My SVG</text>
+					  <rect x="30" y="50" width="120" height="50" style="fill-opacity: 0.7; fill: red;"></rect>
+					  
+					<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
+					<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
+		</svg>	
+		<br /><br />
+		
 		<table  border='1' cellspacing='0'   ><!--style='text-align:center;'-->
 		<?
 		
@@ -1819,17 +1832,7 @@ function OldGraphic(){
 		
 	</script>
 	
-		 <svg id="svg_table" version="1.1" width="5280" height="524" 
-		<!--viewBox="0 0 1280 1024" baseProfile="full" -->
-		xmlns="http://www.w3.org/2000/svg" 
-		xmlns:xlink="http://www.w3.org/1999/xlink" 
-		xmlns:ev="http://www.w3.org/2001/xml-events">
-				<!--  <text x="10" y="50" font-size="30">My SVG</text>
-				  <rect x="30" y="50" width="120" height="50" style="fill-opacity: 0.7; fill: red;"></rect>
-				  
-				<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
-				<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
-</svg>	
+
 	
 
  
@@ -1946,6 +1949,7 @@ function GroupEventInLine(){
 			   var supportsSVG = !!document.createElementNS && !!document.createElementNS("http://www.w3.org/2000/svg", "svg").createSVGRect;
 			//После этой проверки легко найти все случаи использования SVG и заменить пути к векторным изображениям на пути к альтернативной растровой графике.
 			if(supportsSVG){
+				if(nun_years ==0){nun_years =1;}
 				GroupEventInLine();
 				console.log(nun_years);
 				console.log(year_begin);
