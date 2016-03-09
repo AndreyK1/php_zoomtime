@@ -1,4 +1,4 @@
-<?
+<? 
 	header('Content-Type: text/html; charset=utf-8');//собираем всю информацию об защедщих на сайт
 
 	
