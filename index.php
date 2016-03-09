@@ -597,7 +597,8 @@ if(($id_theme!='')){
 		$_SESSION['Date_e'] = null;  
 		
 		?><a href='index.php?eraseFilter' >Очистить фильтр<a/><br />	<?
-		die("Слишком большой промежуток времени более 1000лет!");
+		//die("Слишком большой промежуток времени более 1000лет!");
+		echo "Слишком большой промежуток времени более 1000лет!";
 	}
 	
 	//Маштаб
@@ -637,6 +638,7 @@ if(($id_theme!='')){
 
 
 <script type="text/javascript" src="js/jquery.js"></script><!-- подключаем -->
+<script type="text/javascript" src="js/mapY.js"></script><!-- подключаем -->
  <style type="text/css">
 TD{
     padding: 0px; /* Поля вокруг текста */
@@ -1222,7 +1224,7 @@ echo "alPiks-".$alPiks."<br>";*/
 		//var_dump($ArrDMin);
 		?>
 		<br /><br /><p><b>По заданым критериям найдены следующие события/даты</b></p>
-		<svg id="svg_table" version="1.1" width="5280" height="524" 
+		<svg id="svg_table" version="1.1" width="20" height="20" 
 			<!--viewBox="0 0 1280 1024" baseProfile="full" -->
 			xmlns="http://www.w3.org/2000/svg" 
 			xmlns:xlink="http://www.w3.org/1999/xlink" 
@@ -1959,7 +1961,7 @@ function GroupEventInLine(){
 				var lineCol = arrEv_PeriodN.length+2;
 				var hh = (5+lineCol)*20+'px'
 				
-				for(var i=0; i<nun_years; i++ ){//рисуем года
+				for(var i=0; i<nun_years+2; i++ ){//рисуем года
 					var l=line(10+yearW*i,10,10+yearW*i,hh,"orange")
 					svg.appendChild(l);	
 					var t=text(16+yearW*i,20,'10px',yearB+i)
@@ -1969,7 +1971,7 @@ function GroupEventInLine(){
 				if(scale>0.4){
 					//alert('kv');
 					offset++;
-					for(var i=0; i<nun_years; i++ ){//рисуем кварталы
+					for(var i=0; i<nun_years+1; i++ ){//рисуем кварталы
 						/*var l=line(10+yearW*i,10,10+yearW*i,300,"yellow")
 						svg.appendChild(l);	
 						var t=text(16+yearW*i,20,'10px',yearB+i)
@@ -1997,7 +1999,7 @@ function GroupEventInLine(){
 					//alert('kv');
 					offset++;
 					var MonthLet = new Array('январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь');
-					for(var i=0; i<nun_years; i++ ){//рисуем месяцы
+					for(var i=0; i<nun_years+1; i++ ){//рисуем месяцы
 						for(var j=0; j<12; j++ ){
 							if(j!=0 && j!=3 && j!=6 && j!=9){
 								var l=line(10+yearW*i+monthW*j,10+20*offset,10+yearW*i+monthW*j,hh,"#ccc")
@@ -2036,7 +2038,7 @@ function GroupEventInLine(){
 				
 				//document.getElementById('svg_table').style.display = "none";
 				//SVGObj.setAttribute("height",h);
-				svg.setAttribute("width",yearW*nun_years+'px');
+				svg.setAttribute("width",Math.ceil(yearW*nun_years*1.3)+'px');
 				
 				//var lineCol = 0;
 				for(var i=0; i<arrEv_OnceN.length; i++ ){
@@ -2103,6 +2105,7 @@ function AddEventToSvg(event,line){
 	offset = DateB+offsetYear*yearW;
 	
 	width  = DateE- DateB;
+	if(width ==0){width = 1;}
 	//width  = offsetEnd- offset;
 	console.log("DateB-"+DateB+" DateE-"+DateE+" width-"+width+" difYear-"+difYear+" offsetYear-"+offsetYear)
 	
