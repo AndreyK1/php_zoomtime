@@ -639,6 +639,7 @@ if(($id_theme!='')){
 
 <script type="text/javascript" src="js/jquery.js"></script><!-- подключаем -->
 <script type="text/javascript" src="js/mapY.js"></script><!-- подключаем -->
+<script type="text/javascript" src="https://api-maps.yandex.ru/2.1.14/?lang=ru_RU"></script>
  <style type="text/css">
 TD{
     padding: 0px; /* Поля вокруг текста */
@@ -652,6 +653,33 @@ TD{
 #SpeechFilterForm, .vdiskus{ 
 	background: -webkit-gradient(linear, left top, right  top, from(#EAEAEA), to(#BBBBBB)); background: -moz-linear-gradient(left top, #EAEAEA, #BBBBBB);  
 }
+
+
+
+        html, body, #mapYa {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #menuYa {
+            position: absolute;
+            width: 12em;
+            background: #FFFFCC;
+            border: 3px solid #006600;
+            border-radius: 12px;
+            padding-bottom: 10px;
+            z-index: 2
+        }
+        #menuYa ul {
+            list-style-type: none;
+            padding: 20px;
+            margin: 0;
+        }
+        #menuYa input {
+            width: 10em;
+        }
+ 
 </style>
 <script type="text/javascript" src="blocks/dinamic_scripts/CreateElementOnScreen.js"></script><!--подключаем для создания плавающих окон -->	
 <script>
@@ -688,7 +716,7 @@ obj.parentNode.style.display = 'none';
 obj.parentNode.parentNode.removeChild(obj.parentNode);
 }
 </script>	
-	
+	<div id="mapYa"></div>
 	
 	<div style="z-index:100; position:fixed; top:200px; margin-left: 93%;" title='Маштаб'>
 		<br />
@@ -1236,6 +1264,32 @@ echo "alPiks-".$alPiks."<br>";*/
 					<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
 		</svg>	
 		<br /><br />
+		<select id="objColor" name="objColor">
+		  <option  value="#00FF00">Зеленый</option>
+		  <option  value="#0000FF">Синий</option>
+		  <option  value="#FF0000">Красный</option>
+		</select>  цвет обьекта на карте
+		<br />
+		<br />
+		<br /><br />
+		<select id="objShape" name="objShape">
+		  <option  value="Polygon">Полигон</option>
+		  <option  value="Polyline">Линия</option>
+		  <option  value="Placemark">Метка</option>
+		</select>  форма обьекта на карте
+		<br />
+		<br />
+		
+		<input type="text" name="mapObjHeader" id="mapObjHeader" />  текст заголовка обьекта на карте
+		<br />
+		<input type="text" name="mapObjBody" id="mapObjBody" />  текст тела обьекта на карте
+		<br />
+		<input type="text" name="mapObjDescription" id="mapObjDescription" />  текст hint'a/описания обьекта на карте
+		
+		
+		<div  id="map-canvas" style="width:800px; height:500px; " width="300" height="300" ></div>
+		<button type="button" id="ShowM" onclick="ShowMap();" >Показать на карте</button>
+		<br />
 		
 		<table  border='1' cellspacing='0'   ><!--style='text-align:center;'-->
 		<?
