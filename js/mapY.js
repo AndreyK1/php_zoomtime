@@ -1,5 +1,5 @@
 //alert('map')
-	
+	var myMap;
 	var Polygons = [];  //массив полигонов
 	var Polylines = [];  //массив линий
 	var lastSavedPloyg = -1;
@@ -46,11 +46,13 @@ function GeoPolygonToMap(myMap,pathCoords,header,description,body,color,Weight){
          strokeColor: color,//'#00FF00',
         // // Общая прозрачность (как для заливки, так и для обводки).
         //opacity: 0.35,
-		 fillOpacity :0.35,
+	//	 fillOpacity :0.35,
+		fillOpacity :0.1,
         // // Ширина обводки.
          strokeWidth: 2*Weight,//,
         // // Стиль обводки.
-         strokeOpacity: 0.9
+    //    strokeOpacity: 0.9
+			strokeOpacity: 0.4
 		 //visible: false
 		})
 		);
@@ -75,7 +77,7 @@ function GeoPolygonToMap(myMap,pathCoords,header,description,body,color,Weight){
 		});
 		
 		//контекстное меню
-		addContextMenu(Polygons[Polygons.length-1])
+		addContextMenu(Polygons[Polygons.length-1],Polygons,Polygons.length-1)
 		
 		// Добавляем многоугольникИ на карту.
 	//	myMap.geoObjects.add(myPolygon);
@@ -83,11 +85,24 @@ function GeoPolygonToMap(myMap,pathCoords,header,description,body,color,Weight){
 }
 
 
-function addContextMenu(obj){
+function addContextMenu(obj,arr,elN){
+
+
 			//контекстное меню
 		//https://tech.yandex.ru/maps/jsbox/2.0/geoobject_contextmenu
 		//Polygons[Polygons.length-1].events.add('contextmenu', function (e) {
 		obj.events.add('contextmenu', function (e) {
+			
+		console.log('contextmenu')
+		console.log(arr)
+		for(var i=0; i<arr.length; i++){
+			console.log( arr[i].geometry.getCoordinates())
+			if(arr[i] == obj){
+				console.log('elNNNNN-'+i)
+			}
+		}
+			
+			
         // Если меню метки уже отображено, то убираем его.
         if ($('#menuYa').css('display') == 'block') {
             $('#menuYa').remove();
@@ -102,6 +117,7 @@ function addContextMenu(obj){
 						<li>Цвет: <br /> <input type="text" name="color_text" /></li>\
                     </ul>\
                 <div align="center"><input type="submit" value="Сохранить" /></div>\
+				<div align="center"><button type="button" value="Удалить объект">Удалить объект</button></div>\
                 </div>';
 
             // Размещаем контекстное меню на странице
@@ -113,6 +129,7 @@ function addContextMenu(obj){
                 top: e.get('position')[1]
             });
 			console.log('menuYa position - '+e.get('position')[0] +" - "+e.get('position')[1]);
+				console.log('elN-'+elN)
 		
 			// Заполняем поля контекстного меню текущими значениями свойств метки.
 				$('#menuYa input[name="icon_text"]').val(obj.properties.get('balloonContentHeader'));
@@ -137,7 +154,28 @@ function addContextMenu(obj){
 					// Удаляем контекстное меню.
 					$('#menuYa').remove();
 				});			
-		
+
+				// удаление объекта с карты .
+				$('#menuYa button').click(function () {
+					// Удаляем контекстное меню.
+					$('#menuYa').remove();	
+					console.log('Удаляем geoObjects ')
+					myMap.geoObjects.remove(obj);  
+					console.log(arr)
+					/*
+					for(var i=0; i<arr.length; i++){
+						console.log( arr[i].geometry.getCoordinates())
+					}
+					arr.splice(elN,1);	
+					arr.length = 0;*/
+					for(var i=0; i<arr.length; i++){
+						if(arr[i] == obj){
+							//console.log( arr[i].geometry.getCoordinates())
+							arr.splice(i,1);	
+						}
+					}
+					
+				});				
 		
 		}
 		
@@ -170,11 +208,11 @@ function GeoPolylineToMap(myMap,pathCoords,header,description,body,color,Weight)
 			 strokeColor: color,//'#00FF00',
 			// // Общая прозрачность (как для заливки, так и для обводки).
 			//opacity: 0.35,
-			 fillOpacity :0.35,
+			 fillOpacity :0.1,
 			// // Ширина обводки.
 			 strokeWidth: 2*Weight,//,
 			// // Стиль обводки.
-			 strokeOpacity: 0.9
+			 strokeOpacity: 0.4
 			 //visible: false
 			}
 			)
@@ -201,7 +239,7 @@ function GeoPolylineToMap(myMap,pathCoords,header,description,body,color,Weight)
 		
 		
 		//контекстное меню
-		addContextMenu(Polylines[Polylines.length-1])
+		addContextMenu(Polylines[Polylines.length-1],Polylines,Polylines.length-1)
 		
 		
 		// Добавляем многоугольникИ на карту.
@@ -239,7 +277,7 @@ function initYa1()
 	ourLAT = 55.75;
 	ourLON = 37.61;
 	Lic_Name = 'карта ел'
-	var myMap;//, myPlacemark;
+	//var myMap;//, myPlacemark;
 	    myMap = new ymaps.Map('map-canvas',
 		{
 			// При инициализации карты обязательно нужно указать
@@ -299,10 +337,19 @@ function initYa1()
 			if(objShape == 'Polygon'){
 				lastSavedPloyg = Polygons.length-1;
 				PoligKoord = [];
+				//меняем прозрачность
+				Polygons[Polygons.length-1].options.set({
+					fillOpacity: 0.35,
+					strokeOpacity:0.9
+				});		
 			}
 			if(objShape == 'Polyline'){
 				lastSavedPloyL = Polylines.length-1;
 				PoliLKoord = [];
+					Polylines[Polylines.length-1].options.set({
+					fillOpacity: 0.35,
+					strokeOpacity:0.9
+				});	
 			}			
 		}
 		
