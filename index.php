@@ -1275,6 +1275,7 @@ echo "alPiks-".$alPiks."<br>";*/
 		<select id="objShape" name="objShape">
 		  <option  value="Polygon">Полигон</option>
 		  <option  value="Polyline">Линия</option>
+		  <option  value="Arrow">Стрелка</option>
 		  <option  value="Placemark">Метка</option>
 		</select>  форма обьекта на карте
 		<br />
