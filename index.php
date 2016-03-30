@@ -20,9 +20,20 @@ include_once('startup.php');
 //прооверяем, что мы админ
 include('variables.php');
 
+$IsRedactor = 1; //являетсяли пользователь редактором карт
+?>
+<script> 
+ var IsRedactor = <?=$IsRedactor?>;
+ console.log('IsRedactor-'+IsRedactor);
+ 
+ var CurrentEnentNum = 0;//текущий номер новости
+ var arrObjToBD = {};//массив 
+</script>
+<?
+if($_SESSION['Guest_id']['id_user'] == $AdminID){
+		
 
-
-if($_SESSION['Guest_id']['id_user'] == $AdminID){ 
+	
 	 echo "Вы Админ продолжаем дальше<br />";	
 	 ?>
 		<a href='AddDates.php' >Добавление дат<a/><br />
@@ -679,7 +690,16 @@ TD{
         #menuYa input {
             width: 10em;
         }
- 
+
+        .menuMapObj{
+            position: absolute;
+			top:100px;
+			z-index:5;
+			background-color:white;
+			padding:5px;
+			border:1px solid green;
+        }
+		
 </style>
 <script type="text/javascript" src="blocks/dinamic_scripts/CreateElementOnScreen.js"></script><!--подключаем для создания плавающих окон -->	
 <script>
@@ -716,7 +736,7 @@ obj.parentNode.style.display = 'none';
 obj.parentNode.parentNode.removeChild(obj.parentNode);
 }
 </script>	
-	<div id="mapYa"></div>
+	<!--<div id="mapYa"></div>-->
 	
 	<div style="z-index:100; position:fixed; top:200px; margin-left: 93%;" title='Маштаб'>
 		<br />
@@ -873,7 +893,7 @@ echo "alPiks-".$alPiks."<br>";*/
 
 	
 	
-		<script>//добавление отдельных событий в таблицу
+	<script>//добавление отдельных событий в таблицу
 
 		function SelectWhere(obj){//искать по событиям истории или новостям
 			// if (this.options.[this.selectedIndex].value == "3" ){}
@@ -1263,33 +1283,71 @@ echo "alPiks-".$alPiks."<br>";*/
 					<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
 					<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
 		</svg>	
+		
+		
+		<script>
+			function showk(){
+				if($('#allias').css('display')=='none'){
+					$('#allias').css('display','block')
+				}else{
+					$('#allias').css('display','none')
+				}
+			}
+		</script>
 		<br /><br />
-		<select id="objColor" name="objColor">
-		  <option  value="#00FF00">Зеленый</option>
-		  <option  value="#0000FF">Синий</option>
-		  <option  value="#FF0000">Красный</option>
-		</select>  цвет обьекта на карте
-		<br />
-		<br />
-		<br /><br />
-		<select id="objShape" name="objShape">
-		  <option  value="Polygon">Полигон</option>
-		  <option  value="Polyline">Линия</option>
-		  <option  value="Arrow">Стрелка</option>
-		  <option  value="Placemark">Метка</option>
-		</select>  форма обьекта на карте
-		<br />
-		<br />
+		<? if($IsRedactor){ ?>
+			<div style='border:1px solid green; display:none;' id="mapObject-menu" >
+				<table>
+					<tr>
+						<td style="border-right:1px solid green; padding:5px;">
+							<b>Параметры</b><br />
+							<select id="objColor" name="objColor">
+							  <option  value="#00FF00">Зеленый</option>
+							  <option  value="#0000FF">Синий</option>
+							  <option  value="#FF0000">Красный</option>
+							</select>  цвет обьекта на карте
+							<br />
+							<select id="objShape" name="objShape">
+							  <option  value="Polygon">Полигон1</option>
+							  <option  value="Polyline">Линия2</option>
+							  <option  value="Arrow">Стрелка3</option>
+							  <option  value="Placemark">Метка4</option>
+							</select>  форма обьекта на карте
+							<br />
+							<input type="text" name="mapObjWeight" id="mapObjWeight" value="2" size="3" />  толщина
+							<br />
+						</td>
+						<td style="border-right:1px solid green; padding:5px;">
+							<b>Текст</b><br />
+							<input type="text" name="mapObjHeader" id="mapObjHeader" value="без заголовка" />  текст заголовка обьекта на карте
+							<br />
+							<input type="text" name="mapObjBody" id="mapObjBody" value="без текста тела" />  текст тела обьекта на карте
+							<br />
+							<input type="text" name="mapObjDescription" id="mapObjDescription" value="без описания" />  текст hint'a/описания обьекта на карте					
+						</td>
+						<td style="padding:5px;" >
+							<b style="text-decoration:underline; cursor:pointer; color:blue;" onclick="showk()">Псевдонимы</b><br />
+							<div style="display:none;" id="allias">
+							<input type="text" name="Polygon" class="objShapeCh" />  псевдоним "Полигонов" на карте (пр. Территории)
+							<br />
+							<input type="text" name="Polyline" class="objShapeCh" />  псевдоним "Линий" на карте (пр. Границы)
+							<br />
+							<input type="text" name="Arrow" class="objShapeCh" />  псевдоним "Стрелок" на карте (пр. Маршруты)
+							<br />
+							<input type="text" name="Placemark" class="objShapeCh" />  псевдоним "Меток" на карте (пр. Объекты)						
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		<?}?>
+		<div  id="map-menu" style='position:relative;'  ></div>
+		<? if($IsRedactor){ ?>
+			<div id="map-helper" style='position:relative; display:none;'></div>
+		<?}?>
+		<div  id="map-canvas" style="width:800px; height:500px; display:none;" width="300" height="300" ></div>
 		
-		<input type="text" name="mapObjHeader" id="mapObjHeader" />  текст заголовка обьекта на карте
-		<br />
-		<input type="text" name="mapObjBody" id="mapObjBody" />  текст тела обьекта на карте
-		<br />
-		<input type="text" name="mapObjDescription" id="mapObjDescription" />  текст hint'a/описания обьекта на карте
-		
-		
-		<div  id="map-canvas" style="width:800px; height:500px; " width="300" height="300" ></div>
-		<button type="button" id="ShowM" onclick="ShowMap();" >Показать на карте</button>
+		<button type="button" id="ShowM" onclick="ShowMap(0);" >Показать на карте</button>
 		<br />
 		
 		<table  border='1' cellspacing='0'   ><!--style='text-align:center;'-->
@@ -1330,6 +1388,46 @@ echo "alPiks-".$alPiks."<br>";*/
 		</table>	
 	<?	//	}
 	?>
+	
+	
+	<script>//работа с меню карты
+		
+
+		
+		
+		
+		var MapObjArr = {"Polygon":"Полигон2","Polyline":"Линия2","Arrow":"Стрелка2","Placemark":"Метка2"};
+		$(document).ready(function() { 
+			//var MapObjArr = ["Полигон","Линия","Стрелка","Метка"];
+			
+			console.log('работа с меню карты')
+			console.log($("#objShape option"))
+			//for (var i=0; i<MapObjArr.length;i++){
+			for (var key in MapObjArr) {
+				//$("#objShape").find("option[value='Hot Fuzz']")
+				console.log(key+MapObjArr[key])
+				$("#objShape").find("option[value='"+key+"']").text(MapObjArr[key]);
+				$(".objShapeCh[name='"+key+"']").val(MapObjArr[key]);
+			}
+
+			
+			$(".objShapeCh").on('change',function(){
+				for (var key in MapObjArr) {
+					//$("#objShape").find("option[value='Hot Fuzz']")
+					//console.log(key+MapObjArr[key])
+					var v = $(".objShapeCh[name='"+key+"']").val();
+					console.log(key+'-'+v)
+					if(v != ''){
+						MapObjArr[key] = v;
+						$("#objShape").find("option[value='"+key+"']").text(v);
+					}
+				}				
+			})
+			
+		
+		});
+	
+	</script>
 	
 	
 	<?if($_SESSION['Guest_id']['id_user'] == $AdminID){ //если админ (выводим меню)?>
@@ -2277,6 +2375,9 @@ function showEventPerm(id){
 }
 
 function goEvent(id){
+				CurrentEnentNum = id;
+				
+				console.log('goEvent');
 				var x = document.getElementsByClassName("date_tr_cl")
 			var i
 			for (i = 0; i < x.length; i++) {
@@ -2289,6 +2390,7 @@ function goEvent(id){
 			$("html,body").animate({scrollTop: $(elll).offset().top-200,
 				scrollLeft: $(elll).offset().left-300
 			}, 1000);
+			ShowMap(CurrentEnentNum);
 }
 
 //преобразуем в пиксили даты
@@ -2317,6 +2419,8 @@ function hide(obj){
 
 //при клике на таблице показываем событие в графике
 function ShowOnGraph(id){
+	CurrentEnentNum = id;
+	ShowMap(CurrentEnentNum);
 	//getElementsByC.style.fill='blue';
 
 	//убираем выделения
