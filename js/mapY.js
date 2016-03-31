@@ -1,29 +1,37 @@
 //alert('map')
 	var myMap;
-	var Polygons = [];  //массив полигонов
-	var Polylines = [];  //массив линий
-	var Arrows = [];  //массив стрелок
-	var Placemarks = [];  //массив стрелок
-	var lastSavedPloyg = -1;
-	var lastSavedPloyL = -1;
-	var lastSaveArrow = -1;
-	var lastSavedPlacem = -1;
-	var PoligKoord = [];
-	var PoliLKoord = [];
-	var ArrowKoord = [];
-	var PlacemarkKoord = [];
 
 
+function ClearAllMappObjects(){
+	 Polygons = [];  //массив полигонов
+	 Polylines = [];  //массив линий
+	 Arrows = [];  //массив стрелок
+	 Placemarks = [];  //массив стрелок
+	 lastSavedPloyg = -1;
+	 lastSavedPloyL = -1;
+	 lastSaveArrow = -1;
+	 lastSavedPlacem = -1;
+	 PoligKoord = [];
+	 PoliLKoord = [];
+	 ArrowKoord = [];
+	 PlacemarkKoord = [];	
 	
+}	
+
+	ClearAllMappObjects()
 	//var myPolygon;	
 
 	
-function GeoArrowToMap(myMap,pathCoords,header,description,body,color,Weight){//отдаем яндексу контуры
+function GeoArrowToMap(myMap,pathCoords,header,description,body,color,Weight,needSavetoArr){//отдаем яндексу контуры
 	if( Arrows[Arrows.length-1] && ((Arrows.length-1)!=lastSaveArrow)){ console.log(Arrows[Arrows.length-1]); myMap.geoObjects.remove(Arrows[Arrows.length-1]);  Arrows.pop();} 
 	//https://tech.yandex.ru/maps/jsbox/2.1/arrow
-	ymaps.modules.require(['geoObject.Arrow'], function (Arrow) {
+	var arrow=null;
+							Arrows.push(arrow);  var n= Arrows.length-1;
+	(function(na){ ymaps.modules.require(['geoObject.Arrow'], function (Arrow) {
 						//var arrow = new Arrow([[57.733835, 38.788227], [55.833835, 35.688227]], null, {
-						var arrow = new Arrow(pathCoords, 
+		//				var arrow = new Arrow(pathCoords, 
+		//Arrows[Arrows.length-1]= new Arrow(pathCoords,
+		Arrows[na]= new Arrow(pathCoords,
 						{
 							 // Содержимое балуна.
 								balloonContentHeader: header,
@@ -43,15 +51,15 @@ function GeoArrowToMap(myMap,pathCoords,header,description,body,color,Weight){//
 							strokeOpacity: 0.4,
 							strokeStyle: 'shortdash'
 						});
-						Arrows.push(arrow
-						);
+		//				Arrows.push(arrow);
 						
 						//myMap.geoObjects.add(Arrows[Arrows.length-1]);
 
 
 			
 			//редактирование
-			Arrows[Arrows.length-1].events.add('click', function (e) {
+			//Arrows[Arrows.length-1].events.add('click', function (e) {
+				Arrows[na].events.add('click', function (e) {
 				//console.log(e.get('domEvent').originalEvent)
 				
 				//инфа
@@ -66,18 +74,35 @@ function GeoArrowToMap(myMap,pathCoords,header,description,body,color,Weight){//
 					startEditingHelp()
 				}else{
 					e.get('target').editor.stopEditing();
+					SaveMapObjectsToBD()
 					stopEditingHelp()
 				}
 				
 			});
 			
 			//контекстное меню
-			addContextMenu(Arrows[Arrows.length-1],Arrows,"Arrow")
+		//	addContextMenu(Arrows[Arrows.length-1],Arrows,"Arrow")
+		addContextMenu(Arrows[na],Arrows,"Arrow")
 			
 			// Добавляем многоугольникИ на карту.
 		//	myMap.geoObjects.add(myPolygon);
-			myMap.geoObjects.add(Arrows[Arrows.length-1]);
-	});
+		//	myMap.geoObjects.add(Arrows[Arrows.length-1]);
+		myMap.geoObjects.add(Arrows[na]);
+	}).then(function(data){if(needSavetoArr) {
+		//добавляем в массив
+		//alert('here');
+		//lastSaveArrow = Arrows.length-1;
+			console.log(data)
+					ArrowKoord = [];
+					console.log(Arrows);
+				//	Arrows[Arrows.length-1].options.set({
+					Arrows[na].options.set({
+						fillOpacity: 0.5,
+						strokeOpacity:0.9
+					});
+		
+	}});
+	})(n);
 }
 	
 	
@@ -146,6 +171,7 @@ function GeoPolygonToMap(myMap,pathCoords,header,description,body,color,Weight){
 				startEditingHelp()
 			}else{
 				e.get('target').editor.stopEditing();
+				SaveMapObjectsToBD()
 				stopEditingHelp()
 			}
 			
@@ -203,6 +229,7 @@ function GeoPlacemarkToMap(myMap,pathCoords,header,description,body,color,Weight
 				startEditingHelp()
 			}else{
 				e.get('target').editor.stopEditing();
+				SaveMapObjectsToBD()
 				stopEditingHelp()
 			}
 			
@@ -310,6 +337,8 @@ function addContextMenu(obj,arr,objN){
 				
 					// Удаляем контекстное меню.
 					$('#menuYa').remove();
+					DrowMapObjectList()
+					SaveMapObjectsToBD()
 				});			
 
 				// удаление объекта с карты .
@@ -345,6 +374,8 @@ function addContextMenu(obj,arr,objN){
 					if(objN == "Placemark"){
 						lastSavedPlacem = arr.length-1;
 					}
+					DrowMapObjectList()
+					SaveMapObjectsToBD()
 					
 				});				
 		
@@ -407,6 +438,7 @@ function GeoPolylineToMap(myMap,pathCoords,header,description,body,color,Weight)
 				
 			}else{
 				e.get('target').editor.stopEditing();
+				SaveMapObjectsToBD()
 			}
 			
 		});
@@ -430,10 +462,17 @@ function stopEditingHelp(){
 	BottomHelper('*Для изменения свойств объекта, кликните на нем правой кнопкой мыши.<br /> *Для изменения размеров объекта, зажмите ctrl и кликните на объекте ',16,'green','white',true)
 }
 
+//объекты карты из БД
+var maoObjectsFromBD 
 
-function ShowMap(id_event){
-	if(id_event){
-		//рисуем из памяти
+function ShowMap(maoObj){
+	ClearAllMappObjects()
+	if(maoObj){
+		maoObjectsFromBD = maoObj
+		//рисуем на карте объекты
+	}else{
+		maoObjectsFromBD = null	
+		
 	}
 	//if(Coords){
 		//показываем карту
@@ -459,6 +498,7 @@ function initYa1()
 	ourLON = 37.61;
 	
 	
+	
 
 	
 	Lic_Name = 'карта ел'
@@ -475,7 +515,84 @@ function initYa1()
 	);
 	
 
-	if(IsRedactor){ 
+	if(maoObjectsFromBD){//рисуем объекты из БД
+		if(maoObjectsFromBD.Polygon){
+			console.log('Polygon frob BD');
+			console.log(maoObjectsFromBD.Polygon);
+			console.log(Polygons);
+		   for(var key in maoObjectsFromBD.Polygon)
+			{
+				var obj = maoObjectsFromBD.Polygon[key]
+				GeoPolygonToMap(myMap,obj['Coordinates'],obj['balloonContentHeader'],obj['hintContent'],obj['balloonContentBody'],obj['fillColor'],obj['strokeWidth']);
+					lastSavedPloyg = Polygons.length-1;
+					PoligKoord = [];
+					//меняем прозрачность
+					console.log(Polygons);
+					Polygons[Polygons.length-1].options.set({
+						fillOpacity: 0.35,
+						strokeOpacity:0.9
+					});		
+			}
+
+		}
+		if(maoObjectsFromBD.Arrow){
+			console.log('Arrow frob BD');
+			console.log(maoObjectsFromBD.Arrow);
+			console.log(Arrows);
+		   var i = 1;
+		   for(var key in maoObjectsFromBD.Arrow)
+			{
+				i++;
+				var obj = maoObjectsFromBD.Arrow[key]
+				
+				//setTimeout(function() { //alert('0.5 секунды')
+				GeoArrowToMap(myMap,obj['Coordinates'],obj['balloonContentHeader'],obj['hintContent'],obj['balloonContentBody'],obj['fillColor'],obj['strokeWidth'],true);
+					/*lastSaveArrow = Arrows.length-1;
+					ArrowKoord = [];
+					console.log(Arrows);
+					Arrows[Arrows.length-1].options.set({
+						fillOpacity: 0.5,
+						strokeOpacity:0.9
+					});	 */
+				//}, 1500*i)		
+			}			
+		}
+		if(maoObjectsFromBD.Placemark){
+			console.log('Placemark frob BD');
+			console.log(maoObjectsFromBD.Placemark);
+		   for(var key in maoObjectsFromBD.Placemark)
+			{			
+				var obj = maoObjectsFromBD.Placemark[key]
+				GeoPlacemarkToMap(myMap,obj['Coordinates'],obj['balloonContentHeader'],obj['hintContent'],obj['balloonContentBody'],obj['iconColor'],obj['strokeWidth']);
+					lastSavedPlacem = Placemarks.length-1;
+					PlacemarkKoord = [];
+						Placemarks[Placemarks.length-1].options.set({
+						fillOpacity: 0.5,
+						strokeOpacity:0.9
+					});			
+			
+			}
+		}
+		if(maoObjectsFromBD.Polyline){
+			console.log('Polyline frob BD');
+			console.log(maoObjectsFromBD.Polyline);
+		     for(var key in maoObjectsFromBD.Polyline)
+			{	
+				var obj = maoObjectsFromBD.Polyline[key]
+				GeoPolylineToMap(myMap,obj['Coordinates'],obj['balloonContentHeader'],obj['hintContent'],obj['balloonContentBody'],obj['fillColor'],obj['strokeWidth']);	
+					lastSavedPloyL = Polylines.length-1;
+					PoliLKoord = [];
+						Polylines[Polylines.length-1].options.set({
+						fillOpacity: 0.35,
+						strokeOpacity:0.9
+					});					
+			}		
+		}
+		
+		DrowMapObjectList()
+	}
+	
+	if(IsRedactor){ //если мы можем редактировать, то  вешаем события по рисованию карты
 		//событие при шелчке на карте
 		myMap.events.add('click', function (e) {
 			//alert('Событие на карте'+e.get('coords')); // Возникнет при щелчке на карте, но не на маркере.
@@ -525,7 +642,7 @@ function initYa1()
 				if(objShape == 'Arrow'){
 					ArrowKoord.push(e.get('coords'));
 					console.log(ArrowKoord)		
-					GeoArrowToMap(myMap,ArrowKoord,header,description,body,objColor,Weight);			
+					GeoArrowToMap(myMap,ArrowKoord,header,description,body,objColor,Weight,false);			
 				}
 				if(objShape == 'Placemark'){
 										msg = '*Для изменения расположения метки на карте не отжимая ctrl кликните на новое место.<br /> *Чтобы зафиксировать метку отожмите ctrl и кликните на карте';
@@ -624,7 +741,8 @@ function SaveMapObjectsToBD(){
 	  url: 'blocks/dinamic_scripts/saveMapObj.php',
 	  data: {arrObjJson:arrObjJson,id_ev:CurrentEnentNum},
 	  type: "POST",
-	  success: function(data) {  arr = data; alert(data)}//,
+	  success: function(data) {  arr = data;  alert(data)
+	  }//,
 		//dataType: 'json'
 	})
 	
@@ -750,7 +868,11 @@ function AddMenuItem(x,itemArr,submenu,kind){
 						//	(function(x){	
 			//					var menuItem = $('<li><b>' + Placemarks[x].properties.get('hintContent') + '</b></li>')
 						var content = 'без названия';
-						if(itemArr[x].properties.get('hintContent') !='' && itemArr[x].properties.get('hintContent') !=' '){
+						if(!itemArr[x]){
+							return;
+						}
+						
+						if(itemArr[x] && itemArr[x].properties.get('hintContent') !='' && itemArr[x].properties.get('hintContent') !=' '){
 							console.log('content-'+itemArr[x].properties.get('hintContent')+'-');
 							content = itemArr[x].properties.get('hintContent');
 						}

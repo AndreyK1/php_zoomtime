@@ -1347,7 +1347,7 @@ echo "alPiks-".$alPiks."<br>";*/
 		<?}?>
 		<div  id="map-canvas" style="width:800px; height:500px; display:none;" width="300" height="300" ></div>
 		
-		<button type="button" id="ShowM" onclick="ShowMap(0);" >Показать на карте</button>
+		<button type="button" id="ShowM" onclick="ShowMap(null);" >Показать на карте</button>
 		<br />
 		
 		<table  border='1' cellspacing='0'   ><!--style='text-align:center;'-->
@@ -2390,7 +2390,35 @@ function goEvent(id){
 			$("html,body").animate({scrollTop: $(elll).offset().top-200,
 				scrollLeft: $(elll).offset().left-300
 			}, 1000);
-			ShowMap(CurrentEnentNum);
+			
+			GetMapObjAndShow()
+			
+			
+}
+
+function GetMapObjAndShow(){
+			//получаем массив объектов на карте
+		$.ajax({
+		  async: false, 
+		  url: 'blocks/dinamic_scripts/saveMapObj.php',
+		  data: {id_ev_get:CurrentEnentNum},
+		  type: "POST",
+		  success: function(data) {  arr = data; 
+			//alert(data)
+			console.log(data);
+			if(data){
+				ShowMap(data);
+			}else{
+					$('#map-canvas').css('display','none');
+					$('#mapObject-menu').css('display','none');
+					$('#map-helper').css('display','none');
+						
+			}
+			
+		  },
+			dataType: 'json'
+		})			
+
 }
 
 //преобразуем в пиксили даты
@@ -2420,7 +2448,7 @@ function hide(obj){
 //при клике на таблице показываем событие в графике
 function ShowOnGraph(id){
 	CurrentEnentNum = id;
-	ShowMap(CurrentEnentNum);
+	//ShowMap(CurrentEnentNum);
 	//getElementsByC.style.fill='blue';
 
 	//убираем выделения
@@ -2449,6 +2477,7 @@ function ShowOnGraph(id){
 			}, 1000);		
 	}
 
+	GetMapObjAndShow()
 	//$("html,body").animate({scrollTop: $(elll).offset().top-200}, 1000);
 }
 
