@@ -706,7 +706,8 @@ function initYa1()
 		});
 	}
 	
-	if(northWest[0] != southEast[0])
+	if(maoObjectsFromBD){
+    if(northWest[0] != southEast[0])
 	{
 		/*if(BrowserIE_OLD)
 		{
@@ -730,6 +731,7 @@ function initYa1()
 			}, this);
 		//}
 	}	
+    }
 	
 	//prepareYa(myMap);
 	
