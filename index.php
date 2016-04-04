@@ -20,19 +20,14 @@ include_once('startup.php');
 //прооверяем, что мы админ
 include('variables.php');
 
-$IsRedactor = 1; //являетсяли пользователь редактором карт
+
 ?>
-<script> 
- var IsRedactor = <?=$IsRedactor?>;
- console.log('IsRedactor-'+IsRedactor);
- 
- var CurrentEnentNum = 0;//текущий номер новости
- var arrObjToBD = {};//массив 
-</script>
+
 <?
+$IsRedactor = 0;
 if($_SESSION['Guest_id']['id_user'] == $AdminID){
 		
-
+$IsRedactor = 1; //являетсяли пользователь редактором карт
 	
 	 echo "Вы Админ продолжаем дальше<br />";	
 	 ?>
@@ -42,15 +37,33 @@ if($_SESSION['Guest_id']['id_user'] == $AdminID){
 		<a href='index.php?bot=yes' >Режим бота<a/><br />
 		<a href='index.php?bot=no' >Режим пользователя<a/><br />
 		<a href='TitleNews_inBD.php' >Грабить новости<a/><br />
+        <a href='index.php?exit=yes' >Выйти<a/><br />
 		<br />
 	 <?
 }else{
 //echo 'Вы не Админ!!!';
 }
 
+
+
+if(isset($_GET['exit'])){
+    $_SESSION['Guest_id']['id_user'] = 0;
+    $IsRedactor = 0;
+}
+
+
 $titleStr = '';
 
 ?>
+
+<script> 
+ var IsRedactor = <?=$IsRedactor?>;
+ console.log('IsRedactor-'+IsRedactor);
+ 
+ var CurrentEnentNum = 0;//текущий номер новости
+ var arrObjToBD = {};//массив 
+</script>
+
 
 
 <?
@@ -457,24 +470,24 @@ if(($id_theme!='')){
 				}
 
 			
-			
-			
+			//ISNULL(NULLIF(fieldname,''))
+
 			
 			//вытаскиваем сами даты
-			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category  FROM  $WhereSearch WHERE id in (".$strTh.") ORDER BY date_Beg"  ;
-
+			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects  FROM  $WhereSearch WHERE id in (".$strTh.") ORDER BY date_Beg"  ;
+            //ISNULL(NULLIF(fieldname,''))  0 - если есть координаты,  1 - если пусто
 
 			
 			
 		
 		}else{
 			echo "<br />Нет Событий в этой теме!!!<br />";
-			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
+			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
 		}
 
 }else{
 	//вытаскиваем все события
-	$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
+	$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
 }
 
 
@@ -1347,7 +1360,9 @@ echo "alPiks-".$alPiks."<br>";*/
 		<?}?>
 		<div  id="map-canvas" style="width:800px; height:500px; display:none;" width="300" height="300" ></div>
 		
-		<button type="button" id="ShowM" onclick="ShowMap(null);" >Показать на карте</button>
+		<? if($_SESSION['Guest_id']['id_user'] == $AdminID){ ?>
+            <button type="button" id="ShowM" onclick="ShowMap(null);" >Рисовать на карте</button>
+        <?}?>
 		<br />
 		
 		<table  border='1' cellspacing='0'   ><!--style='text-align:center;'-->
@@ -1381,6 +1396,11 @@ echo "alPiks-".$alPiks."<br>";*/
 					|||<a href="EditDate.php?DelDate=<?=$arrEv[$i]['id']?>" target="blank" >удалить Дату </a> ||| <a href="EditDate.php?EditDate=<?=$arrEv[$i]['id']?>" target="blank" >редактировать Дату </a>
 				<b onclick='ShowAdminMenu(this,event)' id='Dt-<?=$arrEv[$i]['id']?>' idd='country-<?=$arrEv[$i]['ids_country']?>+elsevar-?' >RED</b>
 				<?}?>
+                <?
+                    if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange;'>map</b>";
+                        
+                    }
+                ?>
 				</td>
 			</tr>
 				
@@ -2406,13 +2426,16 @@ function GetMapObjAndShow(){
 		  success: function(data) {  arr = data; 
 			//alert(data)
 			console.log(data);
-			if(data){
+			//alert(data)
+            if(data){
 				ShowMap(data);
 			}else{
-					$('#map-canvas').css('display','none');
+					maoObjectsFromBD = null;
+                    $('#map-canvas').css('display','none');
 					$('#mapObject-menu').css('display','none');
 					$('#map-helper').css('display','none');
-						
+                    $('#map-menu').html('');
+					$('#ShowM').css('display','block') 	
 			}
 			
 		  },

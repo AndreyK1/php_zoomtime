@@ -15,7 +15,6 @@ function ClearAllMappObjects(){
 	 PoliLKoord = [];
 	 ArrowKoord = [];
 	 PlacemarkKoord = [];	
-	
 }	
 
 	ClearAllMappObjects()
@@ -100,6 +99,8 @@ function GeoArrowToMap(myMap,pathCoords,header,description,body,color,Weight,nee
 						fillOpacity: 0.5,
 						strokeOpacity:0.9
 					});
+                    
+                    DrowMapObjectList()
 		
 	}});
 	})(n);
@@ -474,6 +475,8 @@ function ShowMap(maoObj){
 		maoObjectsFromBD = null	
 		
 	}
+    console.log('maoObjectsFromBD');
+    console.log(maoObjectsFromBD);
 	//if(Coords){
 		//показываем карту
 		$('#map-canvas').css('display','block');
@@ -494,10 +497,11 @@ function ShowMap(maoObj){
 //переписанная функция initYa
 function initYa1() 
 {
-	ourLAT = 55.75;
+	/*
+    ourLAT = 55.75;
 	ourLON = 37.61;
 	
-	
+	*/
 	
 
 	
@@ -514,12 +518,13 @@ function initYa1()
 		}
 	);
 	
-
+    prepareYa(myMap);
+    
 	if(maoObjectsFromBD){//рисуем объекты из БД
 		if(maoObjectsFromBD.Polygon){
-			console.log('Polygon frob BD');
+			/*console.log('Polygon frob BD');
 			console.log(maoObjectsFromBD.Polygon);
-			console.log(Polygons);
+			console.log(Polygons);*/
 		   for(var key in maoObjectsFromBD.Polygon)
 			{
 				var obj = maoObjectsFromBD.Polygon[key]
@@ -527,7 +532,7 @@ function initYa1()
 					lastSavedPloyg = Polygons.length-1;
 					PoligKoord = [];
 					//меняем прозрачность
-					console.log(Polygons);
+					//console.log(Polygons);
 					Polygons[Polygons.length-1].options.set({
 						fillOpacity: 0.35,
 						strokeOpacity:0.9
@@ -536,9 +541,9 @@ function initYa1()
 
 		}
 		if(maoObjectsFromBD.Arrow){
-			console.log('Arrow frob BD');
+			/*console.log('Arrow frob BD');
 			console.log(maoObjectsFromBD.Arrow);
-			console.log(Arrows);
+			console.log(Arrows);*/
 		   var i = 1;
 		   for(var key in maoObjectsFromBD.Arrow)
 			{
@@ -558,8 +563,8 @@ function initYa1()
 			}			
 		}
 		if(maoObjectsFromBD.Placemark){
-			console.log('Placemark frob BD');
-			console.log(maoObjectsFromBD.Placemark);
+			/*console.log('Placemark frob BD');
+			console.log(maoObjectsFromBD.Placemark);*/
 		   for(var key in maoObjectsFromBD.Placemark)
 			{			
 				var obj = maoObjectsFromBD.Placemark[key]
@@ -574,8 +579,8 @@ function initYa1()
 			}
 		}
 		if(maoObjectsFromBD.Polyline){
-			console.log('Polyline frob BD');
-			console.log(maoObjectsFromBD.Polyline);
+			/*console.log('Polyline frob BD');
+			console.log(maoObjectsFromBD.Polyline);*/
 		     for(var key in maoObjectsFromBD.Polyline)
 			{	
 				var obj = maoObjectsFromBD.Polyline[key]
@@ -596,21 +601,21 @@ function initYa1()
 		//событие при шелчке на карте
 		myMap.events.add('click', function (e) {
 			//alert('Событие на карте'+e.get('coords')); // Возникнет при щелчке на карте, но не на маркере.
-			console.log('bbbbbb1');
-			console.log(e);
+			/*console.log('bbbbbb1');
+			console.log(e);*/
 			//доступ к событию дом
-			console.log(e.get('domEvent').originalEvent)
-			console.log(e.get('domEvent').originalEvent.ctrlKey)
+			/*console.log(e.get('domEvent').originalEvent)
+			console.log(e.get('domEvent').originalEvent.ctrlKey)*/
 			
 			//цвет
 			var objColor = '#00FF00'
 			objColor = document.getElementById('objColor').value;
-			console.log('objColor - '+objColor);
+			//console.log('objColor - '+objColor);
 			
 			//форма 
 			var objShape = 'Polygon'
 			objShape = document.getElementById('objShape').value;
-			console.log('objShape - '+objShape);
+			//console.log('objShape - '+objShape);
 			
 			var header = document.getElementById('mapObjHeader').value;
 			var body = document.getElementById('mapObjBody').value;
@@ -624,7 +629,7 @@ function initYa1()
 				if(objShape == 'Polygon'){
 					
 					PoligKoord.push(e.get('coords'));
-					console.log(PoligKoord)
+					//console.log(PoligKoord)
 					//GeoPolygonToMap(myMap,PoligKoord,lic_name,PART_name,stat_otv,objColor,Weight);	
 					//if(PoligKoord.length>1){
 						//if(myPolygon){myMap.removeOverlay(myPolygon);}
@@ -636,19 +641,19 @@ function initYa1()
 					//if(PoliLKoord.length>1){ PoliLKoord.pop();}
 					PoliLKoord.push(e.get('coords'));
 					
-					console.log(PoliLKoord)		
+					//console.log(PoliLKoord)		
 					GeoPolylineToMap(myMap,PoliLKoord,header,description,body,objColor,Weight);				
 				}			
 				if(objShape == 'Arrow'){
 					ArrowKoord.push(e.get('coords'));
-					console.log(ArrowKoord)		
+					//console.log(ArrowKoord)		
 					GeoArrowToMap(myMap,ArrowKoord,header,description,body,objColor,Weight,false);			
 				}
 				if(objShape == 'Placemark'){
 										msg = '*Для изменения расположения метки на карте не отжимая ctrl кликните на новое место.<br /> *Чтобы зафиксировать метку отожмите ctrl и кликните на карте';
 					//PlacemarkKoord.push(e.get('coords'));
 					PlacemarkKoord = e.get('coords');
-					console.log(PlacemarkKoord)		
+					//console.log(PlacemarkKoord)		
 					GeoPlacemarkToMap(myMap,PlacemarkKoord,header,description,body,objColor,Weight);			
 				}
 
@@ -687,8 +692,8 @@ function initYa1()
 						fillOpacity: 0.5,
 						strokeOpacity:0.9
 					});	
-					console.log('Placemarks');
-					console.log(Placemarks);
+					/*console.log('Placemarks');
+					console.log(Placemarks);*/
 
 				}
 
@@ -701,9 +706,32 @@ function initYa1()
 		});
 	}
 	
+	if(northWest[0] != southEast[0])
+	{
+		/*if(BrowserIE_OLD)
+		{
+			myMap.setBounds([pointMin, pointMax]);// for IExplorer < 11 and old browsers
+		}
+		else
+		{*/
+			 myMap.setBounds([pointMin, pointMax], // for others..
+			 {
+				 checkZoomRange: true
+			 }).then(function () {
+				//Действие было успешно завершено.
+				} , function (err) {
+				//Не удалось показать заданный регион
+				myMap.zoomRange.get(myMap.getCenter()).
+				then(function (zoomRange) {
+   				 if(myMap.getZoom() > zoomRange[1])
+					myMap.setZoom(zoomRange[1]);
+				});
 
+			}, this);
+		//}
+	}	
 	
-	prepareYa(myMap);
+	//prepareYa(myMap);
 	
 		myMap.setType('yandex#hybrid', {
  		checkZoomRange: true
@@ -717,7 +745,7 @@ function initYa1()
 function SaveMapObjectsToBD(){
 	arrObjToBD = {};//обнуляем
 	
-	console.log('SaveMapObjectsToBD')
+	//console.log('SaveMapObjectsToBD')
 	if(Placemarks.length >0){
 		GetJSONMapObjects(Placemarks,'Placemark')
 	}	
@@ -732,9 +760,9 @@ function SaveMapObjectsToBD(){
 	}
 	
 	
-	console.log(arrObjToBD);
+	//console.log(arrObjToBD);
 	var arrObjJson = JSON.stringify(arrObjToBD);
-	console.log('arrObjJson-'+arrObjJson)
+	//console.log('arrObjJson-'+arrObjJson)
 	//сохраняем в БД
 	$.ajax({
 	  async: false, 
@@ -768,16 +796,16 @@ function GetJSONMapObjects(arr,objN){
 		newArr[i] = arr1;
 	}
 	arrObjToBD[objN] = newArr;
-	console.log('arrObjToBD');
-	console.log(arrObjToBD);
+	/*console.log('arrObjToBD');
+	console.log(arrObjToBD);*/
 }
 
 //перерисовка меню обьектов на карте
 function DrowMapObjectList(){
-	console.log('DrowMapObjectList2')
+	//console.log('DrowMapObjectList2')
 						document.getElementById('map-menu').innerHTML = '';
 					var maWidth = $('#map-canvas').width()
-					console.log('masp width -'+maWidth);
+					//console.log('masp width -'+maWidth);
 					menu = $('<ul class="menuMapObj" style="left:'+(maWidth-50)+'px;"/>');
 						
 						
@@ -873,7 +901,7 @@ function AddMenuItem(x,itemArr,submenu,kind){
 						}
 						
 						if(itemArr[x] && itemArr[x].properties.get('hintContent') !='' && itemArr[x].properties.get('hintContent') !=' '){
-							console.log('content-'+itemArr[x].properties.get('hintContent')+'-');
+							//console.log('content-'+itemArr[x].properties.get('hintContent')+'-');
 							content = itemArr[x].properties.get('hintContent');
 						}
 						
@@ -1121,7 +1149,18 @@ function drawMapYandex1()//(lat, lon, sk42)
 {
 
 		//CalcRegion1(pointsUnnamed.concat(pointsNamed));
-		
+		if(maoObjectsFromBD){
+           CalcRegion1(maoObjectsFromBD) 
+           $('#ShowM').css('display','none') 
+$('#ShowM').hide()           
+        }else{
+            ourLAT = 55.75;
+            ourLON = 37.61;
+            // document.getElementById('ShowM')  
+//            $('#ShowM').css('display','block')    
+  $('#ShowM').show()           
+        }
+        
 	//	CoorUN = pointsUnnamed;
 	//	CoorN = pointsNamed;
 		document.getElementById('map-canvas').innerHTML = '';
@@ -1504,4 +1543,89 @@ function OfficeNavigator (offices) {
 		}//);
 		*/
 	};
+}
+
+
+//расчет крайних координат (для фрейма)
+function CalcRegion1(mapObjects){
+	//перебираем все участки и находим точки/границу зоны отображения
+    ourLAT = 55.75;
+    ourLON = 37.61;  
+    console.log('------------------CalcRegion1-points-');
+    console.log(mapObjects);
+    
+    var minLat = 200.0, maxLat = -200.0, minLong = 200.0, maxLong = -200.0;
+
+    var points = [];
+    
+    //находим все координаты и в массив их
+    for(var key in mapObjects){
+        console.log(key)
+       console.log(mapObjects[key])
+        for(var key1 in mapObjects[key]){//для каждого полигона       
+            if(key == 'Placemark'){
+                points.push(mapObjects[key][key1]['Coordinates'])
+            }else{
+
+                    if(key == 'Polygon'){
+                        for(var i=0; i<mapObjects[key][key1]['Coordinates'][0].length; i++){                       
+                              points.push(mapObjects[key][key1]['Coordinates'][0][i])
+                        }                    
+                    }
+                    if((key == 'Polyline') || (key == 'Arrow')){
+                        for(var i=0; i<mapObjects[key][key1]['Coordinates'].length; i++){
+                            console.log('Polyline - Arrow')
+                            points.push(mapObjects[key][key1]['Coordinates'][i])
+                        }
+                    }                    
+            }
+        }     
+    }
+     console.log('points')
+     console.log(points)
+ 
+
+    if(points.length > 0)
+	{	
+		
+       
+        //['coords'] - named points
+		for(var i=0; i<points.length; i++)
+		{
+					if(points[i][0] >  maxLat) 
+						maxLat = points[i][0];
+					if(points[i][0] <  minLat) 
+						minLat = points[i][0];
+					if(points[i][1] >  maxLong) 
+						maxLong = points[i][1];
+					if(points[i][1] <  minLong)
+						minLong = points[i][1];
+		}
+       
+		
+	//	console.log('maxLat-'+maxLat+'-minLat-'+minLat+'-maxLong-'+maxLong+'-minLong-'+minLong);
+		
+	}
+	
+	if(maxLat == minLat)
+	{
+		ourLAT = maxLat;
+		ourLON = maxLong;
+		maxLat = maxLat + 0.05;
+		minLat = minLat - 0.05;
+		maxLong = maxLong + 0.05;
+		minLong = minLong - 0.05;
+	}
+	else
+	{
+		ourLAT = 0.5 * (maxLat + minLat);//myPoints[0];
+		ourLON = 0.5 * (maxLong + minLong);//myPoints[1];
+	}
+	northWest = [maxLat , minLong ];
+	southEast = [minLat , maxLong ];
+	northEast = [minLat, maxLong];
+	southWest = [maxLat, minLong];
+	pointMin = [minLat , minLong];
+	pointMax = [maxLat , maxLong];
+
 }
