@@ -664,6 +664,8 @@ if(($id_theme!='')){
 <script type="text/javascript" src="js/jquery.js"></script><!-- подключаем -->
 <script type="text/javascript" src="js/mapY.js"></script><!-- подключаем -->
 <script type="text/javascript" src="https://api-maps.yandex.ru/2.1.14/?lang=ru_RU"></script>
+<link rel="stylesheet" type="text/css" href="css/style.css"  />
+
  <style type="text/css">
 TD{
     padding: 0px; /* Поля вокруг текста */
@@ -1284,7 +1286,11 @@ echo "alPiks-".$alPiks."<br>";*/
 		<?}
 		//var_dump($ArrDMin);
 		?>
-		<br /><br /><p><b>По заданым критериям найдены следующие события/даты</b></p>
+		
+        
+        <?	if($arrEv !=null){?>
+            <br /><br /><p><b>По заданым критериям найдены следующие события/даты</b></p>
+        <?}?>
 		<svg id="svg_table" version="1.1" width="20" height="20" 
 			<!--viewBox="0 0 1280 1024" baseProfile="full" -->
 			xmlns="http://www.w3.org/2000/svg" 
@@ -2115,7 +2121,9 @@ function GroupEventInLine(){
 			
 		}		
 		
-		console.log('arrEv_PeriodN'+JSON.stringify(arrEv_PeriodN))	
+		//console.log('arrEv_PeriodN'+JSON.stringify(arrEv_PeriodN))
+        console.log('arrEv_PeriodN') 
+        console.log(arrEv_PeriodN)        
 }
 
 
@@ -2126,18 +2134,22 @@ function GroupEventInLine(){
 			if(supportsSVG){
 				if(nun_years ==0){nun_years =1;}
 				GroupEventInLine();
-				console.log(nun_years);
+				console.log('--------------nun_years');
+                console.log(nun_years);
 				console.log(year_begin);
+                console.log(yearB);
 				//console.log(JSON.stringify(arrEv));
 				var offset =0; //отступ в строках
 				
 				var lineCol = arrEv_PeriodN.length+2;
 				var hh = (5+lineCol)*20+'px'
 				
-				for(var i=0; i<nun_years+2; i++ ){//рисуем года
+				
+                for(var i=0; i<nun_years+2; i++ ){//рисуем года
 					var l=line(10+yearW*i,10,10+yearW*i,hh,"orange")
 					svg.appendChild(l);	
-					var t=text(16+yearW*i,20,'10px',yearB+i)
+	//				var t=text(16+yearW*i,20,'10px',yearB+i)
+                    t=text(16+yearW*i,20,'10px',year_begin+i)
 					svg.appendChild(t);
 				}
 				
@@ -2265,8 +2277,10 @@ function AddEventToSvg(event,line){
 	
 	//находим offset лет
 	offsetYear = 0;
-	if(dbY != yearB){
-		offsetYear = dbY - yearB
+	//if(dbY != yearB){
+	//	offsetYear = dbY - yearB 
+ 	if(dbY != year_begin){
+		offsetYear = dbY - year_begin 
 	}
 
 	DateB = Math.ceil(DateB*scaleN);
@@ -2562,7 +2576,51 @@ function ShowOnGraph(id){
 	
 	
 	
-	<?	if($arrEv ==null){ echo "<br /><b>Ничего не найдено. Измените параметры фильтра.</b><br />"; }?>
+	<?	if($arrEv ==null){ echo "<br /><b style='color:red;'>Ничего не найдено. Измените параметры фильтра.</b><br />"; 
+        //выводим темы с картинками (по приоритету/или по джате создания)
+        //print_r($arrTheme);
+        	//вытаскиваем все темы новостей (если в дальнейшем будет висеть, то сделать при клике на ссылку)
+            //$query = "SELECT * FROM  Theme_of_Events ORDER BY Theme";
+            //ISNULL(NULLIF(map_objects,'')) as map_objects
+            $query = "SELECT * FROM  Theme_of_Events WHERE img <>'' ORDER BY prior ";
+            
+                        
+            $result = mysql_query($query) or die(mysql_error());
+                $n = mysql_num_rows($result);
+            if($n >0){
+                $arrTh = array();
+                for ($i = 0; $i < $n; $i++)
+                {
+                    $row = mysql_fetch_assoc($result);		
+                    $arrTh[] = $row;
+                    if($row['id'] == $_GET['id_theme']){  $theme = $row['Theme'];}
+                    
+                    //if($row['id'] ==$SpeechArr[0]['id_avtor']){ $titleStr = $row['Who'];	}
+                }
+            }
+        
+            //print_r($arrTh);
+            
+            if(count($arrTh)>0){
+            ?>
+                <h3>Последние темы</h3>
+                <ul class="foto_albom foto50Text">
+						<? foreach ($arrTh as $theme):?>
+							<li>
+								 <!--width="10px" height="10px"-->
+								 <a title="<?=$theme['Theme']?>" href="index.php?id_theme=<?=$theme['id']?>"><div class="foto_50" style="overflow:hidden;"><img style="width:250px;"  src="img/themes/<?=$theme['img']?>" /></div><br />
+								 <?=$theme['Theme']?></a>
+							</li>	
+						<?	endforeach; ?>
+
+                 </ul>        
+            <?
+            }
+    
+    
+    
+    
+    }?>
 
 	<!--LiveInternet counter--><script type="text/javascript"><!--
 document.write("<a href='//www.liveinternet.ru/click' "+

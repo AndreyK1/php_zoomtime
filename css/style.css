@@ -1,0 +1,31 @@
+.foto_50{
+	width:250px;
+	height:250px;
+}
+.foto_albom{
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+.foto_albom li{
+	text-align:center;
+	margin:3px;
+	display:inline-block;
+	vertical-align:top;
+	overflow:hidden;
+}
+.foto_albom li a, .linkF{
+	text-decoration:none;
+	color:#333;
+	font-weight:bold;
+}
+.foto50Text{
+	font-size:15px;
+	font-weight:bold;
+	}
+.foto50Text li{
+    border:1px solid green;
+}
+.foto50Text li{
+	margin:4px;
+}
