@@ -1371,6 +1371,280 @@ echo "alPiks-".$alPiks."<br>";*/
         <?}?>
 		<br />
 		
+		<? if($IsRedactor){ ?>
+			<iframe  name="h_iframe" width="700" height="100" style="display: none;"></iframe><!-- фрейм для загрузки страницы  onchange="document.forms['img_upload'].submit();"  -->
+			<div id="picoBody" style='border:1px solid green;'>
+				<b id='DobFotoLable'>Добавление картинки/карты </b>
+				<!-- locks/dinamic_scripts/loadPicture.php?path=MapPicture&size=150 -->
+				<form  id="linkForm2" method="post" action="blocks/dinamic_scripts/loadPicture.php?path=MapPicture&size=3000"  name="img_upload" enctype="multipart/form-data" target="h_iframe">
+					<div id="imageId">
+						 
+						  <img src="img/loadinfo1.gif" style="display:none;" />
+					 </div>
+					 <div id="image_upload_status"></div>	
+					 <p><input id="showfiles1" type="file" name="userfileComment"  /></p>
+					 <input id="srcFoto" type="text" name="srcFoto"   />
+					 <input id="TextArea1" type="hidden" name="srcFoto"  />
+				</form>
+			
+			<script>		
+				$(document).ready(function() { 
+					
+					$('#showfiles1').change(function(){ 
+						if(CurrentEnentNum){
+							document.getElementById('srcFoto').value = '';
+								document.forms['linkForm2'].submit();
+								
+
+								
+								timer = setInterval(function(){
+									srcFoto = document.getElementById('srcFoto').value;
+									document.getElementById('MapPictureDraw').src =  srcFoto;
+									console.log('MapPictureDraw-'+srcFoto);
+									
+									if(srcFoto !=''){
+										clearInterval(timer);
+											//сохраняем к автору картинку
+											//alert(srcFoto)
+											if(srcFoto !=''){
+														$.ajax({
+													  async: false, 
+													  url: 'blocks/dinamic_scripts/MapsChanges.php',
+													  data: {mapPict:srcFoto,id_ev:CurrentEnentNum},
+													  type: "POST",
+													  success: function(data) {  arr = data;  alert(data)
+													  }//,
+														//dataType: 'json'
+													})
+												
+											}
+											//сохраняем и миниатюру
+											document.forms['linkForm2'].action = "blocks/dinamic_scripts/loadPicture.php?path=MapPictureSmal&size=60"
+											document.forms['linkForm2'].submit();
+											
+									}
+								}, 300);
+								
+						}else{alert('Вы не выбрали дату!')}
+					});
+					
+					
+					
+					
+				});		
+			</script>
+			
+			
+			<table>
+				<tr>		
+					<td>
+						<h3>Подстановка файла</h3>
+						<b>Нахождение координат (пикселей) на картинке</b><br />
+						<table>
+							<tr>
+								<td>
+								Первая точка
+								</td>
+								<td>
+								Вторая точка
+								</td>
+							</tr>
+							<tr>
+								<td>
+								x1 <input type="text" name="X1koordMapPict" id="X1koordMapPict" size="5"  /> 
+								</td>
+								<td>
+								x2 <input type="text" name="X2koordMapPict" id="X2koordMapPict" size="5"  /> 
+								</td>
+							</tr>
+							<tr>
+								<td>
+								y1 <input type="text" name="Y1koordMapPict" id="Y1koordMapPict" size="5"  /> 
+								</td>
+								<td>
+								y2 <input type="text" name="Y2koordMapPict" id="Y2koordMapPict" size="5"  /> 
+								</td>
+							</tr>	
+						</table>
+						<!--	
+						<input type="text" name="XY1koordMapPict" id="XY1koordMapPict" value="" />  координата X1/Y1 (пикселей) на картинке первой привязной точки<br />
+						<input type="text" name="XY2koordMapPict" id="XY2koordMapPict" value="" />  координата X2/Y2 (пикселей) на картинке второй привязной точки<br />
+						-->
+						<b>Нахождение координат (широта/долгота) на карте Yandex</b><br />
+						<!--
+						<input type="text" name="LongLat1koordMapYa" id="LongLat1koordMapYa" value="" />  координата X1/Y1 (широта/долгота) на карте Yandex первой привязной точки<br />
+						<input type="text" name="LongLat2koordMapYa" id="LongLat2koordMapYa" value="" />  координата X2/Y2 (широта/долгота) на карте Yandex  второй привязной точки<br />					<br />
+						-->
+						<table>
+							<tr>
+								<td>
+								Первая точка
+								</td>
+								<td>
+								Вторая точка
+								</td>
+							</tr>
+							<tr>
+								<td>
+								Lat1  <input type="text" name="la1koordMapPict" id="la1koordMapPict" size="5"  /> 
+								</td>
+								<td>
+								Lat2  <input type="text" name="la2koordMapPict" id="la2koordMapPict" size="5"  /> 
+								</td>							
+
+							</tr>
+							<tr>
+								<td>
+								Lon1 <input type="text" name="lo1koordMapPict" id="lo1koordMapPict" size="5"  /> 
+								</td>
+								<td>
+								Lon2 <input type="text" name="lo2koordMapPict" id="lo2koordMapPict" size="5"  /> 
+								</td>
+							</tr>	
+						</table>					
+						<br />
+					</td>
+					<td>
+		
+					</td>
+				</tr>
+			</table>
+			<button onclick="PlacePicture()">наложить</button>
+			<br /><br />
+			<button style="color:red;" onclick="ClearMap()">полностью очистить карту</button>
+			
+			</div>	
+			<br />
+			
+			<div id="ImgOverMap">
+			<!--<img src="img/themes/mapMo.jpg" id="MapPictureDraw" />-->
+			<img src="" id="MapPictureDraw" />
+			</div>			
+			
+			<script>
+					
+					var srcFoto = '';
+					var xyP = 1;
+					var LoLaP = 1;	
+					var picwidth = 0;
+					var picheight = 0;
+				
+					function illuminatePoints(){
+						$('#X1koordMapPict').attr('style','border:1px solid black;')
+						$('#Y1koordMapPict').attr('style','border:1px solid black;')
+						$('#X2koordMapPict').attr('style','border:1px solid black;')
+						$('#Y2koordMapPict').attr('style','border:1px solid black;')
+						$('#menuYa input[name="X1_text"]').attr('style','border:1px solid black;')
+						$('#menuYa input[name="Y1_text"]').attr('style','border:1px solid black;')
+						$('#menuYa input[name="X2_text"]').attr('style','border:1px solid black;')
+						$('#menuYa input[name="Y2_text"]').attr('style','border:1px solid black;')
+						
+
+						$('#lo1koordMapPict').attr('style','border:1px solid black;')
+						$('#la1koordMapPict').attr('style','border:1px solid black;')
+						$('#lo2koordMapPict').attr('style','border:1px solid black;')
+						$('#la2koordMapPict').attr('style','border:1px solid black;')
+						
+						$('#X'+xyP+'koordMapPict').attr('style','border:1px solid red;')
+						$('#Y'+xyP+'koordMapPict').attr('style','border:1px solid red;')
+						
+						$('#lo'+LoLaP+'koordMapPict').attr('style','border:1px solid red;')
+						$('#la'+LoLaP+'koordMapPict').attr('style','border:1px solid red;')
+						
+						//$('#menuYa input[name="X2_text"]').val()
+						$('#menuYa input[name="X'+LoLaP+'_text"]').attr('style','border:1px solid red;')
+						$('#menuYa input[name="Y'+LoLaP+'_text"]').attr('style','border:1px solid red;')
+						
+					};
+					
+					
+					//очищаем карту у даты
+					function ClearMap(){
+						$.ajax({
+						  async: false, 
+						  url: 'blocks/dinamic_scripts/MapsChanges.php',
+						  data: {clearMap:'',id_ev:CurrentEnentNum},
+						  type: "POST",
+						  success: function(data) {  arr = data;  alert(data)
+						  }//,
+							//dataType: 'json'
+						})						
+					}
+					
+					function PlacePicture(){//наложение картинки на карту
+						//находим зависимость координат (пикселей картинуки к градусам на карте)
+						var x1 = $('#X1koordMapPict').val();
+						var x2 = $('#X2koordMapPict').val();
+						var y1 = $('#Y1koordMapPict').val();
+						var y2 = $('#Y2koordMapPict').val();				
+
+						var xM1 = $('#la1koordMapPict').val();
+						var xM2 = $('#la2koordMapPict').val();
+						var yM1 = $('#lo1koordMapPict').val();
+						var yM2 = $('#lo2koordMapPict').val();	
+						
+						//находим коэфициенты
+						var kx = (x2-x1)/(xM2-xM1);
+						var ky = -(y2-y1)/(yM2-yM1);
+						//alert('kx-'+kx+'  ky-'+ky);
+						console.log('kx-'+kx+'  ky-'+ky);
+						
+						//находим верхний угол на карте
+						x1nm = parseFloat(xM1) - (x1/kx);  
+						y1nm = parseFloat(yM1) + (y1/ky); 
+						
+
+						//находим yнижний угол на карте
+						x2nm = x1nm + (parseInt(picwidth)/kx);  
+						y2nm = y1nm - (parseInt(picheight)/ky);  					
+					//	PlacePictureOnMap()
+						console.log('x1nm-'+x1nm+'  y1nm-'+y1nm);
+						console.log('x2nm-'+x2nm+'  y2nm-'+y2nm);
+						PlacePictureOnMap([[y1nm,x1nm],[y2nm,x2nm]])
+						SaveMapObjectsToBD()
+
+					}
+					
+
+					illuminatePoints();			
+				
+				$(document).ready(function() { 
+					
+		
+					
+
+					
+					$('#ImgOverMap').click(function(e){
+							console.log('click')
+							if(e.originalEvent.altKey){//если нажата alt
+								var x = e.pageX - e.target.offsetLeft;
+								var y = e.pageY - e.target.offsetTop;
+								console.log('click xb -'+e.pageX+" xe-"+x)
+								console.log('click yb -'+e.pageY+" ye-"+y)	
+								//подставляем координаты
+								$('#X'+xyP+'koordMapPict').val(x)
+								$('#Y'+xyP+'koordMapPict').val(y)
+								xyP++; if(xyP>2){xyP=1;}
+								illuminatePoints();
+							}
+							
+							//размеры картинки
+							picwidth = $('#ImgOverMap img').css('width')
+							picheight = $('#ImgOverMap img').css('height')
+							console.log('picwidth -'+picwidth+" picheight-"+picheight)	
+
+							console.log('altKey-'+e.originalEvent.altKey);
+							/*
+							originalEvent.ctrlKey; coordPos = e.get('coords');
+							*/
+							
+							
+						}
+					)
+					
+				});
+			</script>
+		<?}?>
 		<table  border='1' cellspacing='0'   ><!--style='text-align:center;'-->
 		<?
 		
@@ -1411,7 +1685,8 @@ echo "alPiks-".$alPiks."<br>";*/
 			</tr>
 				
 		<?}?>
-		</table>	
+		</table>
+	
 	<?	//	}
 	?>
 	
@@ -1422,7 +1697,7 @@ echo "alPiks-".$alPiks."<br>";*/
 		
 		
 		
-		var MapObjArr = {"Polygon":"Полигон2","Polyline":"Линия2","Arrow":"Стрелка2","Placemark":"Метка2"};
+		var MapObjArr = {"Polygon":"Полигон","Polyline":"Линия","Arrow":"Стрелка","Placemark":"Метка","Rectangle":"Карта"};
 		$(document).ready(function() { 
 			//var MapObjArr = ["Полигон","Линия","Стрелка","Метка"];
 			
@@ -2608,13 +2883,20 @@ function ShowOnGraph(id){
 						<? foreach ($arrTh as $theme):?>
 							<li>
 								 <!--width="10px" height="10px"-->
-								 <a title="<?=$theme['Theme']?>" href="index.php?id_theme=<?=$theme['id']?>"><div class="foto_50" style="overflow:hidden;"><img style="width:250px;"  src="img/themes/<?=$theme['img']?>" /></div><br />
-								 <?=$theme['Theme']?></a>
+								 <span style="cursor:pointer;" title="<?=$theme['Theme']?>" onclick="GotoTheme('th-<?=$theme['id']?>')"><div class="foto_50" style="overflow:hidden;"><img style="width:250px;"  src="img/themes/<?=$theme['img']?>" /></div><br />
+								 <?=$theme['Theme']?></span>
 							</li>	
 						<?	endforeach; ?>
 
                  </ul>        
-            <?
+            <script>
+				function GotoTheme(th_id){
+					location.href = 'index.php?id_theme='+th_id.split('-')[1];
+				}
+			</script>
+			
+			
+			<?
             }
     
     

@@ -1,0 +1,1 @@
+эта папка только для добавления фоток в C:\WebServers\home\localhost\www\ZoomTime\blocks\dinamic_scripts\loadPicture.php

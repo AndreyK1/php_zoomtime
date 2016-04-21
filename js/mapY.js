@@ -7,10 +7,16 @@ function ClearAllMappObjects(){
 	 Polylines = [];  //массив линий
 	 Arrows = [];  //массив стрелок
 	 Placemarks = [];  //массив стрелок
+	 
+	 Rectangles = [] //массив картинок
+	 
 	 lastSavedPloyg = -1;
 	 lastSavedPloyL = -1;
 	 lastSaveArrow = -1;
 	 lastSavedPlacem = -1;
+	 
+	 //lastSavedRectan = -1;
+	 
 	 PoligKoord = [];
 	 PoliLKoord = [];
 	 ArrowKoord = [];
@@ -214,6 +220,7 @@ function GeoPlacemarkToMap(myMap,pathCoords,header,description,body,color,Weight
 		})
 		);
 		
+		
 		//редактирование
 		Placemarks[Placemarks.length-1].events.add('click', function (e) {
 			//console.log(e.get('domEvent').originalEvent)
@@ -242,6 +249,100 @@ function GeoPlacemarkToMap(myMap,pathCoords,header,description,body,color,Weight
 		// Добавляем многоугольникИ на карту.
 	//	myMap.geoObjects.add(myPolygon);
 		myMap.geoObjects.add(Placemarks[Placemarks.length-1]);
+}
+
+function PlacePictureOnMap(koordsBound,header,description,body,fillImageHref,fillOpacity){//создание картинки - карты
+	
+//	if( Polygons[Polygons.length-1] && ((Polygons.length-1)!=lastSavedPloyg)){ console.log(Polygons[Polygons.length-1]); myMap.geoObjects.remove(Polygons[Polygons.length-1]);  Polygons.pop();} 
+
+	//https://tech.yandex.ru/maps/doc/jsapi/2.0/ref/reference/Rectangle-docpage/
+		// Удаляем контекстное меню.
+	// Создаем прямоугольник на основе границы карты. 
+
+	//	var rectangle = new ymaps.Rectangle(myMap.getBounds(), {}, {
+			
+			
+		//	var rectangle = new ymaps.Rectangle([[48.240106543955314, 38.355155107187805],[48.205923386302786*1.3, 38.40287696998076*2]], {}, {
+			
+		//var rectangle = new ymaps.Rectangle(koordsBound, {}, {			
+				//arr1['fillImageHref']=arr[i].options.get('fillImageHref')
+				//arr1['fillOpacity']=arr[i].options.get('fillOpacity')
+			
+			
+			if(!header){
+				header = document.getElementById('mapObjHeader').value;
+			}
+			 
+			if(!body){
+				body = document.getElementById('mapObjBody').value;
+			}
+			if(!description){
+				description = document.getElementById('mapObjDescription').value;
+			}
+			if(!fillOpacity){
+				fillOpacity = 0.5;
+			}			
+			if(!fillImageHref){
+				fillImageHref = srcFoto;
+			}
+		
+		Rectangles.push(//new ymaps.GeoObject({
+			new ymaps.Rectangle(koordsBound, {
+	          	balloonContentHeader: header,
+				balloonContentBody : body,
+				// Содержимое хинта.
+				//hintContent: header+" "+description
+				hintContent: description			
+			}, {
+		//fillImageHref: 'http://_link_to_the_image_'
+		//	fillImageHref: 'img/themes/2.jpg',
+		//fillImageHref: 'img/themes/mapMo.jpg',
+		fillImageHref:fillImageHref,
+			fillOpacity: fillOpacity
+
+		})
+		);
+
+		// Добавляем прямоугольник на карту.
+		//myMap. myMap.events.add('click', function (e) {
+		Rectangles[Rectangles.length-1].events.add('click', function (e) {
+			//myMap.click(e);
+			console.log('Rectangles altlKey-'+e.get('domEvent').originalEvent.altKey+" "+e.get('domEvent').originalEvent.ctrlKey)
+			console.log(e.get('domEvent').originalEvent)
+		//	if(e.get('domEvent').originalEvent.altKey){//если нажата alt, то реедактируем карту
+				/*alert('redact')
+				console.log('Rectangles options')
+				console.log(Rectangles[Rectangles.length-1].options)*/
+				//e.get('target').editor.startEditing();
+				//e.get('target')
+				// Rectangles[Rectangles.length-1].behaviors.enable('drag');
+				//Rectangles[Rectangles.length-1].options.draggable = true;
+		//	}else{//передаем клик на саму карту
+				//e.get('target').editor.stopEditing();
+				myMap.events.fire('click',{
+					 coordPosition:e.get('coords'),
+					 //eor:e
+					 ctrlKeyOr:e.get('domEvent').originalEvent.ctrlKey,
+					 altKeyOr:e.get('domEvent').originalEvent.altKey
+				});	
+				SaveMapObjectsToBD()				
+		//	}
+			
+
+			/*
+			                left: e.get('position')[0],
+                top: e.get('position')[1],
+			*/
+		});	
+
+		//контекстное меню
+		addContextMenu(Rectangles[Rectangles.length-1],Rectangles,"Rectangle")
+
+		
+		//myMap.geoObjects.add(rectangle);
+		myMap.geoObjects.add(Rectangles[Rectangles.length-1]);
+		
+		DrowMapObjectList()
 }
 
 
@@ -279,9 +380,21 @@ function addContextMenu(obj,arr,objN){
 				<ul id="menu_list">\
                         <li>Заголовок: <br /> <input type="text" name="header_text" /></li>\
                         <li>Тело: <br /> <input type="text" name="body_text" /></li>\
-                        <li>hint/описание: <br /> <input type="text" name="hint_text" /></li>\
-						<li>Цвет: <br /> <input type="text" name="color_text" /></li>\
-						<li>Толщина: <br /> <input type="text" name="Width_text" /></li>\
+						<li>hint/описание: <br /> <input type="text" name="hint_text" /></li>'
+				if(objN != "Rectangle"){		
+					menuContent +=		'<li>Цвет: <br /> <input type="text" name="color_text" /></li>'
+					
+				}
+				if(objN == "Rectangle"){		
+					menuContent +=		'<li>Прозрачность: <br /> <input type="text" name="fillOpacity_text" /></li>\
+											<li><b>Координаты</b></>\
+											<li>X Top: <br /> <input type="text" name="X1_text" /></li>\
+											<li>Y Top: <br /> <input type="text" name="Y1_text" /></li>\
+											<li>X Down: <br /> <input type="text" name="X2_text" /></li>\
+											<li>Y Down: <br /> <input type="text" name="Y2_text" /></li>'
+				}	
+	
+				menuContent +=		'<li>Толщина: <br /> <input type="text" name="Width_text" /></li>\
                     </ul>\
                 <div align="center"><input type="submit" value="Сохранить" /></div>\
 				<div align="center"><button type="button" value="Удалить объект">Удалить объект</button></div>\
@@ -306,11 +419,26 @@ function addContextMenu(obj,arr,objN){
 				
 				$('#menuYa input[name="Width_text"]').val(obj.options.get('strokeWidth'));
 				
-				if(objN != "Placemark"){
+				if((objN != "Placemark") && ((objN != "Rectangle"))){
+				//if(objN != "Placemark"){
 					
 					$('#menuYa input[name="color_text"]').val(obj.options.get('fillColor'));
-				}else{
+				//}else{
+				}
+				
+				if((objN == "Placemark")){
 					$('#menuYa input[name="color_text"]').val(obj.options.get('iconColor'));
+				}
+				
+				
+				if(objN == "Rectangle"){
+					console.log(obj.geometry.getCoordinates());
+					$('#menuYa input[name="fillOpacity_text"]').val(obj.options.get('fillOpacity'));
+					$('#menuYa input[name="X1_text"]').val(obj.geometry.getCoordinates()[0][0]);
+					$('#menuYa input[name="Y1_text"]').val(obj.geometry.getCoordinates()[0][1]);
+					$('#menuYa input[name="X2_text"]').val(obj.geometry.getCoordinates()[1][0]);
+					$('#menuYa input[name="Y2_text"]').val(obj.geometry.getCoordinates()[1][1]);
+					//geometry.getCoordinates()
 				}
 				// При нажатии на кнопку "Сохранить" изменяем свойства метки
 				// значениями, введенными в форме контекстного меню.
@@ -325,17 +453,31 @@ function addContextMenu(obj,arr,objN){
 						strokeWidth:$('input[name="Width_text"]').val()
 					});
 					
-					if(objN != "Placemark"){
+					//if(objN != "Placemark"){
+					if((objN != "Placemark") && ((objN != "Rectangle"))){
 						obj.options.set({
 							fillColor: $('input[name="color_text"]').val(),
 							strokeColor: $('input[name="color_text"]').val()
 						});							
-					}else{
+					}
+					
+					if((objN == "Placemark")){
 						obj.options.set({
 							iconColor: $('input[name="color_text"]').val()
 						});							
 					}
-				
+					if(objN == "Rectangle"){
+						obj.options.set({
+							fillOpacity: $('input[name="fillOpacity_text"]').val(),
+							//strokeColor: $('input[name="color_text"]').val()
+						});
+						
+						obj.geometry.setCoordinates([[parseFloat($('#menuYa input[name="X1_text"]').val()),parseFloat($('#menuYa input[name="Y1_text"]').val())],
+													[parseFloat($('#menuYa input[name="X2_text"]').val()),parseFloat($('#menuYa input[name="Y2_text"]').val())]])
+						
+					}
+
+					
 					// Удаляем контекстное меню.
 					$('#menuYa').remove();
 					DrowMapObjectList()
@@ -375,6 +517,8 @@ function addContextMenu(obj,arr,objN){
 					if(objN == "Placemark"){
 						lastSavedPlacem = arr.length-1;
 					}
+
+					
 					DrowMapObjectList()
 					SaveMapObjectsToBD()
 					
@@ -475,6 +619,9 @@ function ShowMap(maoObj){
 		maoObjectsFromBD = null	
 		
 	}
+	
+	
+	
     console.log('maoObjectsFromBD');
     console.log(maoObjectsFromBD);
 	//if(Coords){
@@ -488,6 +635,7 @@ function ShowMap(maoObj){
 			$('#map-helper').css('display','block');
 		}
 		drawMapYandex1();
+		
 		//drawMapYandex1(Coords[0],Coords[1]);
 		//$('html,body').animate({ scrollTop: $('#map-canvas').offset().top }, { duration: 'slow', easing: 'swing'});
 		//alert('ShowYa1')
@@ -517,6 +665,9 @@ function initYa1()
 			type: 'yandex#satellite'//
 		}
 	);
+	
+	
+//	PlacePictureOnMap()
 	
     prepareYa(myMap);
     
@@ -593,6 +744,22 @@ function initYa1()
 					});					
 			}		
 		}
+
+		
+		if(maoObjectsFromBD.Rectangle){
+
+		     for(var key in maoObjectsFromBD.Rectangle)
+			{	
+				var obj = maoObjectsFromBD.Rectangle[key]
+				//GeoPolylineToMap(myMap,obj['Coordinates'],obj['balloonContentHeader'],obj['hintContent'],obj['balloonContentBody'],obj['fillColor'],obj['strokeWidth']);	
+				
+				//arr1['fillImageHref']=arr[i].options.get('fillImageHref')
+				//arr1['fillOpacity']=arr[i].options.get('fillOpacity')
+				
+				PlacePictureOnMap(obj['Coordinates'],obj['balloonContentHeader'],obj['hintContent'],obj['balloonContentBody'],obj['fillImageHref'],obj['fillOpacity'])
+					
+			}		
+		}
 		
 		DrowMapObjectList()
 	}
@@ -600,6 +767,7 @@ function initYa1()
 	if(IsRedactor){ //если мы можем редактировать, то  вешаем события по рисованию карты
 		//событие при шелчке на карте
 		myMap.events.add('click', function (e) {
+			console.log('click hhhhhhhhhh')
 			//alert('Событие на карте'+e.get('coords')); // Возникнет при щелчке на карте, но не на маркере.
 			/*console.log('bbbbbb1');
 			console.log(e);*/
@@ -613,7 +781,8 @@ function initYa1()
 			//console.log('objColor - '+objColor);
 			
 			//форма 
-			var objShape = 'Polygon'
+			//var objShape = 'Polygon'
+			var objShape = ''
 			objShape = document.getElementById('objShape').value;
 			//console.log('objShape - '+objShape);
 			
@@ -622,13 +791,36 @@ function initYa1()
 			var description = document.getElementById('mapObjDescription').value;
 			var Weight = document.getElementById('mapObjWeight').value; if(Weight <1){Weight=1;}
 			
-			if(e.get('domEvent').originalEvent.ctrlKey){//если нажата клавиша .ctrl то рисуем полигон
-				
-
+			
+			//в зависимости от того, как был произведен клик (на карту/или из наложеной картинки) мы выбираем дальнейшие действия
+			//altlKeyOr
+			var ctrl = false;
+			var alt = false;
+			var coordPos = null;
+			if(typeof(e.originalEvent.ctrlKeyOr) != undefined){ ctrl = e.originalEvent.ctrlKeyOr; alt = e.originalEvent.altKeyOr; coordPos = e.originalEvent.coordPosition; }
+			if(e.get('domEvent')){ ctrl = e.get('domEvent').originalEvent.ctrlKey; alt=e.get('domEvent').originalEvent.altKey; coordPos = e.get('coords'); }
+			
+			console.log('eeeeeeeeee');
+			console.log(e);
+			console.log(e.originalEvent.ctrlKeyOr);
+			
+			console.log('coordPos');
+			console.log(coordPos);
+		//	var pixels=e.get('globalPixels');
+		//	console.log('globalPixels');
+			//console.log(pixels);			
+			console.log('ctrl-'+ctrl);
+			
+			if(e.get('domEvent')){ console.log('have domEvent'); }
+			
+			
+			//if(e.get('domEvent').originalEvent.ctrlKey){
+			if(ctrl){//если нажата клавиша .ctrl то рисуем полигон
 				var msg = '*Для нанесения следующей координаты обьекта не отжимайте ctrl перед кликом.<br /> *Чтобы закончить прорисовку этого объекта отожмите ctrl и кликните на карте';
 				if(objShape == 'Polygon'){
 					
-					PoligKoord.push(e.get('coords'));
+				//	PoligKoord.push(e.get('coords'));
+					PoligKoord.push(coordPos);
 					//console.log(PoligKoord)
 					//GeoPolygonToMap(myMap,PoligKoord,lic_name,PART_name,stat_otv,objColor,Weight);	
 					//if(PoligKoord.length>1){
@@ -639,35 +831,59 @@ function initYa1()
 				}
 				if(objShape == 'Polyline'){
 					//if(PoliLKoord.length>1){ PoliLKoord.pop();}
-					PoliLKoord.push(e.get('coords'));
+					//PoliLKoord.push(e.get('coords'));
+					PoliLKoord.push(coordPos);
 					
 					//console.log(PoliLKoord)		
 					GeoPolylineToMap(myMap,PoliLKoord,header,description,body,objColor,Weight);				
 				}			
 				if(objShape == 'Arrow'){
-					ArrowKoord.push(e.get('coords'));
+					//ArrowKoord.push(e.get('coords'));
+					ArrowKoord.push(coordPos);
 					//console.log(ArrowKoord)		
 					GeoArrowToMap(myMap,ArrowKoord,header,description,body,objColor,Weight,false);			
 				}
 				if(objShape == 'Placemark'){
 										msg = '*Для изменения расположения метки на карте не отжимая ctrl кликните на новое место.<br /> *Чтобы зафиксировать метку отожмите ctrl и кликните на карте';
 					//PlacemarkKoord.push(e.get('coords'));
-					PlacemarkKoord = e.get('coords');
+					//PlacemarkKoord = e.get('coords');
+					PlacemarkKoord = coordPos;
 					//console.log(PlacemarkKoord)		
 					GeoPlacemarkToMap(myMap,PlacemarkKoord,header,description,body,objColor,Weight);			
 				}
 
 				BottomHelper(msg,16,'yellow','black',true)
 			
-			}else{//сохраняем объект в массив и создаем новый
+		//	}else if(e.get('domEvent') && e.get('domEvent').originalEvent.altKey){
+			}else if(alt){
+				//if(e.get('domEvent').originalEvent.altKey){//если нажата alt, то подставляем координаты в поле сопоставления с картинкой
+				/*var x = e.pageX - e.target.offsetLeft;
+				var y = e.pageY - e.target.offsetTop;*/
+				console.log('click Lo -'+coordPos[0])
+				console.log('click La -'+coordPos[1])	
+				//подставляем координаты
+				$('#lo'+LoLaP+'koordMapPict').val(coordPos[0])
+				$('#la'+LoLaP+'koordMapPict').val(coordPos[1])
+				
+				$('#menuYa input[name="X'+LoLaP+'_text"]').val(coordPos[0])
+				$('#menuYa input[name="Y'+LoLaP+'_text"]').val(coordPos[1])
+				
+				LoLaP++; if(LoLaP>2){LoLaP=1;}
+				illuminatePoints();
+				//}
+			}			
+			
+			else{//сохраняем объект в массив и создаем новый
 				if(objShape == 'Polygon'){
 					lastSavedPloyg = Polygons.length-1;
 					PoligKoord = [];
 					//меняем прозрачность
-					Polygons[Polygons.length-1].options.set({
-						fillOpacity: 0.35,
-						strokeOpacity:0.9
-					});		
+					if(Polygons.length>0){
+						Polygons[Polygons.length-1].options.set({
+							fillOpacity: 0.35,
+							strokeOpacity:0.9
+						});
+					}
 				}
 				if(objShape == 'Polyline'){
 					lastSavedPloyL = Polylines.length-1;
@@ -702,6 +918,9 @@ function initYa1()
 				//сохранение в БД
 				SaveMapObjectsToBD()
 			}
+			
+			
+
 			
 		});
 	}
@@ -747,7 +966,7 @@ function initYa1()
 function SaveMapObjectsToBD(){
 	arrObjToBD = {};//обнуляем
 	
-	//console.log('SaveMapObjectsToBD')
+	console.log('SaveMapObjectsToBD')
 	if(Placemarks.length >0){
 		GetJSONMapObjects(Placemarks,'Placemark')
 	}	
@@ -760,7 +979,9 @@ function SaveMapObjectsToBD(){
 	if(Arrows.length >0){
 		GetJSONMapObjects(Arrows,'Arrow')
 	}
-	
+	if(Rectangles.length >0){
+		GetJSONMapObjects(Rectangles,'Rectangle')
+	}	
 	
 	//console.log(arrObjToBD);
 	var arrObjJson = JSON.stringify(arrObjToBD);
@@ -771,7 +992,10 @@ function SaveMapObjectsToBD(){
 	  url: 'blocks/dinamic_scripts/saveMapObj.php',
 	  data: {arrObjJson:arrObjJson,id_ev:CurrentEnentNum},
 	  type: "POST",
-	  success: function(data) {  arr = data;  alert(data)
+	  success: function(data) {  arr = data;  
+		  console.log('SaveMapObjectsToBD data')
+		   console.log(data)
+		  alert(data)
 	  }//,
 		//dataType: 'json'
 	})
@@ -790,6 +1014,12 @@ function GetJSONMapObjects(arr,objN){
 			arr1['fillColor']=arr[i].options.get('fillColor')
 		}else{
 			arr1['iconColor']=arr[i].options.get('iconColor')
+		}
+		
+		
+		if(objN == "Rectangle"){
+			arr1['fillImageHref']=arr[i].options.get('fillImageHref')
+			arr1['fillOpacity']=arr[i].options.get('fillOpacity')
 		}
 
 		arr1['balloonContentHeader']=arr[i].properties.get('balloonContentHeader');
@@ -866,7 +1096,24 @@ function DrowMapObjectList(){
 								for (var i = 0; i < Arrows.length; i++) {
 									AddMenuItem(i,Arrows,submenuArrow,'Arrow')
 								}
-						}						
+						}
+
+						
+						if(Rectangles.length >0){
+							// Контейнер для подменю.
+							submenuRectanl = $('<li><i>+</i><b style="text-decoration:underline; cursor:pointer; color:blue;">'+MapObjArr['Rectangle']+'</b></li>');
+							submenuRectanl.addClass('subM')
+							submenuRectan = $('<ul class="submenu"/>');
+							menu.append(submenuRectanl)
+							submenuRectanl.append(submenuRectan)						
+								// Перебираем все метки.
+								
+								for (var i = 0; i < Rectangles.length; i++) {
+									AddMenuItem(i,Rectangles,submenuRectan,'Rectangle')
+								}
+						}
+
+						
 						menu.appendTo($('#map-menu'));
 						
 						
@@ -1574,7 +1821,7 @@ function CalcRegion1(mapObjects){
                               points.push(mapObjects[key][key1]['Coordinates'][0][i])
                         }                    
                     }
-                    if((key == 'Polyline') || (key == 'Arrow')){
+                    if((key == 'Polyline') || (key == 'Arrow') || (key == 'Rectangle')){
                         for(var i=0; i<mapObjects[key][key1]['Coordinates'].length; i++){
                             console.log('Polyline - Arrow')
                             points.push(mapObjects[key][key1]['Coordinates'][i])
