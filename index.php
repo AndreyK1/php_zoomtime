@@ -474,7 +474,7 @@ if(($id_theme!='')){
 
 			
 			//вытаскиваем сами даты
-			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects  FROM  $WhereSearch WHERE id in (".$strTh.") ORDER BY date_Beg"  ;
+			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE id in (".$strTh.") ORDER BY date_Beg"  ;
             //ISNULL(NULLIF(fieldname,''))  0 - если есть координаты,  1 - если пусто
 
 			
@@ -482,12 +482,12 @@ if(($id_theme!='')){
 		
 		}else{
 			echo "<br />Нет Событий в этой теме!!!<br />";
-			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
+			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
 		}
 
 }else{
 	//вытаскиваем все события
-	$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
+	$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
 }
 
 
@@ -1391,7 +1391,9 @@ echo "alPiks-".$alPiks."<br>";*/
 				$(document).ready(function() { 
 					
 					$('#showfiles1').change(function(){ 
+						console.log('showfiles1 submit');
 						if(CurrentEnentNum){
+							console.log('showfiles1 CurrentEnentNum');
 							document.getElementById('srcFoto').value = '';
 								document.forms['linkForm2'].submit();
 								
@@ -1560,6 +1562,11 @@ echo "alPiks-".$alPiks."<br>";*/
 					
 					//очищаем карту у даты
 					function ClearMap(){
+						var result = confirm("Вы уверены, что хотите удалить все элементы на карте?");
+						if(!result){
+							return false;
+						}
+						
 						$.ajax({
 						  async: false, 
 						  url: 'blocks/dinamic_scripts/MapsChanges.php',
@@ -1677,8 +1684,14 @@ echo "alPiks-".$alPiks."<br>";*/
 				<b onclick='ShowAdminMenu(this,event)' id='Dt-<?=$arrEv[$i]['id']?>' idd='country-<?=$arrEv[$i]['ids_country']?>+elsevar-?' >RED</b>
 				<?}?>
                 <?
-                    if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange;'>map</b>";
-                        
+                    if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange; position:relative;'>map";
+                       // mapPict
+					   //echo $arrEv[$i]['mapPict'];
+						   if($arrEv[$i]['mapPict'] !=''){ 
+								//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
+								echo "<img style='cursor:pointer;  position:absolute; top:-18px; left:15px;' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
+						   }
+					   echo "</b>";
                     }
                 ?>
 				</td>
