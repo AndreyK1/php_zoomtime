@@ -1664,13 +1664,26 @@ echo "alPiks-".$alPiks."<br>";*/
 				</td>
 				
 				
-				<td style='text-align:right; padding:3px;'  <?if($arrEv[$i]['dateE1'] != ''){ echo " title='Дата окончания события' ";}?>  >
+				<td style='text-align:right; padding:3px; position:relative;'  <?if($arrEv[$i]['dateE1'] != ''){ echo " title='Дата окончания события' ";}?>  >
 					<?=$arrEv[$i]['dateE1']?> 
-				</td>			
-				
+				</td>	
+				<td style=' padding:0px; margin:0px;'  >
+						   <div style='position:relative;' >
+						   <? if(!$arrEv[$i]['map_objects']){ 
+
+							   if($arrEv[$i]['mapPict'] !=''){ 
+									//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
+									echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
+							   }else{
+									echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/mapvector1.jpg'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
+							   }
+							   echo "<b style='cursor:pointer; color:red; position:absolute; top:8px; left:5px;' onclick='ShowOnGraph(".$arrEv[$i]['id'].")' >карта</b>";
+						   }?>
+							</div>						   
+				</td>
 				<td style='text-align:left; padding:3px;' >
 				<!--* <a href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' ><?=$date?> : <?=$arrEv[$i]['titl_nE']?></a>-->
-				<?if(count($arrEv[$i]['country'])>1){ echo "<b style='color:red'>".count($arrEv[$i]['country'])."</b>";}?><select  name='co' title='страны связанные с событиями/датами' >
+				<? if(count($arrEv[$i]['country'])>1){ echo "<b style='color:red'>".count($arrEv[$i]['country'])."</b>";}?><select  name='co' title='страны связанные с событиями/датами' >
 					<?foreach($arrEv[$i]['country'] as $ke=>$co){?>
 					<option value='<?=$ke?>' ><?=$co?></option>
 				<?}?>
@@ -1684,7 +1697,7 @@ echo "alPiks-".$alPiks."<br>";*/
 				<b onclick='ShowAdminMenu(this,event)' id='Dt-<?=$arrEv[$i]['id']?>' idd='country-<?=$arrEv[$i]['ids_country']?>+elsevar-?' >RED</b>
 				<?}?>
                 <?
-                    if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange; position:relative;'>map";
+                   /* if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange; position:relative;'>map";
                        // mapPict
 					   //echo $arrEv[$i]['mapPict'];
 						   if($arrEv[$i]['mapPict'] !=''){ 
@@ -1692,7 +1705,7 @@ echo "alPiks-".$alPiks."<br>";*/
 								echo "<img style='cursor:pointer;  position:absolute; top:-18px; left:15px;' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
 						   }
 					   echo "</b>";
-                    }
+                    }*/
                 ?>
 				</td>
 			</tr>
