@@ -1673,11 +1673,12 @@ echo "alPiks-".$alPiks."<br>";*/
 
 							   if($arrEv[$i]['mapPict'] !=''){ 
 									//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
-									echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
+									echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
+									echo "<b style='cursor:pointer; color:red; position:absolute; top:-7px; left:-18px;' onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' >карта</b>";
 							   }else{
-									echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/mapvector1.jpg'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
+									echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/mapvector1.jpg'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
 							   }
-							   echo "<b style='cursor:pointer; color:red; position:absolute; top:8px; left:5px;' onclick='ShowOnGraph(".$arrEv[$i]['id'].")' >карта</b>";
+							   
 						   }?>
 							</div>						   
 				</td>
@@ -1691,7 +1692,7 @@ echo "alPiks-".$alPiks."<br>";*/
 				<b title='категория события' style=' color:green; font-size:10px; '><?=$CategoryArr[$arrEv[$i]['category']]?></b>
 				<?//var_dump($arrEv[$i]['country']);?>
 				
-				<span style='cursor:pointer;' id='date_tr_<?=$arrEv[$i]['id']?>' class='date_tr_cl' onclick="ShowOnGraph(<?=$arrEv[$i]['id']?>)"><?=$arrEv[$i]['titl_nE']?></span> <a title="посмотреть информацию о событии" href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' >-- > посмотреть</a>
+				<span style='cursor:pointer;' id='date_tr_<?=$arrEv[$i]['id']?>' class='date_tr_cl' onclick="ShowOnGraph(<?=$arrEv[$i]['id']?>,<?=$i?>)"><?=$arrEv[$i]['titl_nE']?></span> <a title="посмотреть информацию о событии" href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' >-- > посмотреть</a>
 				<?if($_SESSION['Guest_id']['id_user'] == $AdminID){ //если админ (выводим меню)?>
 					|||<a href="EditDate.php?DelDate=<?=$arrEv[$i]['id']?>" target="blank" >удалить Дату </a> ||| <a href="EditDate.php?EditDate=<?=$arrEv[$i]['id']?>" target="blank" >редактировать Дату </a>
 				<b onclick='ShowAdminMenu(this,event)' id='Dt-<?=$arrEv[$i]['id']?>' idd='country-<?=$arrEv[$i]['ids_country']?>+elsevar-?' >RED</b>
@@ -2784,7 +2785,7 @@ function hide(obj){
 }
 
 //при клике на таблице показываем событие в графике
-function ShowOnGraph(id){
+function ShowOnGraph(id,n){
 	CurrentEnentNum = id;
 	//ShowMap(CurrentEnentNum);
 	//getElementsByC.style.fill='blue';
@@ -2812,7 +2813,26 @@ function ShowOnGraph(id){
 		elll.style.fill='red';
 				$("html,body").animate({scrollTop: $(elll).offset().top-200,
 				scrollLeft: $(elll).offset().left-300
-			}, 1000);		
+			}, 1000);	
+				
+				var evEm={
+					pageX : $(elll).offset().left,
+					pageY: $(elll).offset().top
+				}
+				
+				//console.log(arrEv);
+				showEvent(evEm,[[id,arrEv[n]['event']]])
+				//setTimeout(function(){$('#'+idN).mouseover();},2000);
+				
+				/*ent.pageX+"px";
+					el.style['top'] = event.pageY+"px";*/
+				
+				//alert($('#'+idN).innerHTML)
+				//$('#'+idN).mouseover();
+				//console.log($('#'+idN));
+				//$(elll).mouseover();
+				console.log('showEventPerm(id)-'+id+"-- "+'#'+idN);
+				// showEvent(event,arrText)
 	}
 
 	GetMapObjAndShow()

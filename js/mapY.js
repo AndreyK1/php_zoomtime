@@ -1101,7 +1101,7 @@ function DrowMapObjectList(){
 						
 						if(Rectangles.length >0){
 							// Контейнер для подменю.
-							submenuRectanl = $('<li><i>+</i><b style="text-decoration:underline; cursor:pointer; color:blue;">'+MapObjArr['Rectangle']+'</b></li>');
+							submenuRectanl = $('<li><i>+</i><b  style="text-decoration:underline; cursor:pointer; color:blue; position:relative;"><b  class="cancelCl" style="position:absolute; left:-155px;  background-color:#ccc;"><b style="color:red;" onclick="changeOpacity(1)">[+]</b> <b style="color:red;" onclick="changeOpacity(0)">[-]</b> <b  style="font-size:11px; cursor:default;">Прозрачность карт</b></b>'+MapObjArr['Rectangle']+'</b></li>');
 							submenuRectanl.addClass('subM')
 							submenuRectan = $('<ul class="submenu"/>');
 							menu.append(submenuRectanl)
@@ -1125,6 +1125,11 @@ function DrowMapObjectList(){
 						$(menu.find('.subM').find('.submenu')[0]).show();  $(menu.find('.subM').find('i')[0]).html('-');
 				//		$(menu.find('.subM')).find('b').toggle(function(){  $(this).parent().find('.submenu').show()},function(){  $(this).parent().find('.submenu').hide()});
 					$(menu.find('.subM')).find('b').click(function(){  
+						//if($(this).parent().find('.cancelCl')){
+						if($(this).hasClass("cancelCl")){//отменяем для прозрачности	
+							return false;
+						}
+						
 						//alert($(this).parent().find('i').html())
 						if($(this).parent().find('i').html() == '+'){
 							$(this).parent().find('.submenu').show();
@@ -1183,6 +1188,26 @@ function AddMenuItem(x,itemArr,submenu,kind){
 									});
 							//	})(i);
 	//BottomHelper('Для активизации',26,'yellow','black',true)
+}
+
+
+//изменение прозрачности карт
+function changeOpacity(w){
+	if(Rectangles.length >0){
+		for (var i = 0; i < Rectangles.length; i++) {
+			//AddMenuItem(i,Rectangles,submenuRectan,'Rectangle')
+				var next = Rectangles[i].options.get('fillOpacity');
+				if(w){ next = next+0.1; if(next >1){ next=1;} }
+				if(!w){ next = next-0.1; if(next <0.1){ next=0.1;} }
+				
+						Rectangles[i].options.set({
+							//fillOpacity: $('input[name="fillOpacity_text"]').val(),
+							//strokeColor: $('input[name="color_text"]').val()
+							//obj.options.get('fillOpacity')
+							fillOpacity:next
+						});			
+		}		
+	}
 }
 
 function BottomHelper(text,size,color,fontcolor,visible){
