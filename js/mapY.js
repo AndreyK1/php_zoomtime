@@ -1345,6 +1345,8 @@ function prepareYa(myMap){
 	//	myMap.behaviors.enable('scrollZoom');//масштабирование колесом мыши
 //	}
 	
+	
+/*	
 	// Создадим пользовательский макет ползунка масштаба.
     ZoomLayout = ymaps.templateLayoutFactory.createClass("<div>" +
                 "<div id='zoom-in' class='zoom-button'><img src='./img/button_plus.png'></div>"+
@@ -1411,7 +1413,8 @@ function prepareYa(myMap){
     zoomControl = new ymaps.control.ZoomControl({ options: { layout: ZoomLayout } });
 
 	myMap.controls.add(zoomControl);
-	
+*/	
+	myMap.controls.add('zoomControl', { top: 75, left: 5 });
 	//Lic_Name = Name() + "  " + StatOtv();	
 	
 }

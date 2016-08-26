@@ -753,6 +753,67 @@ obj.parentNode.parentNode.removeChild(obj.parentNode);
 </script>	
 	<!--<div id="mapYa"></div>-->
 	
+<script>
+		//if(!scale){
+			scale = 3
+			var nun_years = <?=$num_years?>;
+			//nun_years = <?=$num_years?>;
+			
+			if((nun_years>5) && (nun_years<=10)){
+				scale = 2;
+			}else if((nun_years>10) && (nun_years<=20)){
+				scale = 1;
+			}else if((nun_years>20) && (nun_years<=30)){
+				scale = '0.5';
+			}else if((nun_years>30) && (nun_years<=50)){
+				scale = '0.2';
+			}else if((nun_years>50) && (nun_years<=300)){
+				scale = '0.1';
+			}else if(nun_years>300){
+				scale = '0.05';
+			}			
+			
+			
+			
+			
+		//}	
+	function ChangeScale(zn){
+
+		if(zn =='+'){
+			scale = scale*2;
+		}
+		if(zn =='-'){
+			if(scale<= 1){
+				scale = scale/2;
+			}else{
+				scale = Math.ceil(scale/2);
+			}
+		}
+		console.log('ChangeScale-'+scale)
+	
+	
+
+ arrEv_Once = [];
+ arrEv_OnceN = [];
+ arrEv_Period = [];
+ arrEv_PeriodN = [];
+ scaleN = scale*1;				
+ yearW = scaleN*365;
+ kvW = Math.ceil(scaleN*365/4);
+ monthW = Math.ceil(scaleN*365/12);
+ svg = document.getElementById("svg_table");//.getSVGDocument();
+yearB = <?=$ArrDMin[0]?>-1+1;
+	
+	
+
+
+
+	SVGRender(arrEv);			
+	}
+</script>
+	
+	
+	
 	<div style="z-index:100; position:fixed; top:200px; margin-left: 93%;" title='Маштаб'>
 		<br />
 		<? 
@@ -763,7 +824,9 @@ obj.parentNode.parentNode.removeChild(obj.parentNode);
 			// echo $sledScalePl;
 			echo $scale;
 		?>
-		<div style='border:3px solid green; margin-bottom:5px; color:green; font-size:35px; cursor:pointer;' ><a href='index.php?scale=<?=$sledScalePl?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;+&nbsp;</a></div>
+		<div style='border:3px solid green; margin-bottom:5px; color:green; font-size:35px; cursor:pointer;' ><!--<a href='index.php?scale=<?=$sledScalePl?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;+&nbsp;</a>-->
+				<span onclick="ChangeScale('+')" style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;+&nbsp;</span>
+		</div>
 		<? 
 			if($scale <= 1){
 				$sledScaleMin = $scale/2;
@@ -773,7 +836,9 @@ obj.parentNode.parentNode.removeChild(obj.parentNode);
 			$sledScaleMin=str_replace(',','.',$sledScaleMin); 
 			
 		?>
-		<div style='border:3px solid green; color:green; font-size:35px; cursor:pointer;'><a href='index.php?scale=<?=$sledScaleMin?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;&ndash;&nbsp;</a></div>
+		<div style='border:3px solid green; color:green; font-size:35px; cursor:pointer;'><!--<a href='index.php?scale=<?=$sledScaleMin?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;&ndash;&nbsp;</a>-->
+			<span onclick="ChangeScale('-')" style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;-&nbsp;</span>
+		</div>
 	</div>
 	
 	
@@ -1364,7 +1429,7 @@ echo "alPiks-".$alPiks."<br>";*/
 		<? if($IsRedactor){ ?>
 			<div id="map-helper" style='position:relative; display:none;'></div>
 		<?}?>
-		<div  id="map-canvas" style="width:800px; height:500px; display:none;" width="300" height="300" ></div>
+		<div  id="map-canvas" style="width:1400px; height:900px; display:none;" width="300" height="300" ></div>
 		
 		<? if($_SESSION['Guest_id']['id_user'] == $AdminID){ ?>
             <button type="button" id="ShowM" onclick="ShowMap(null);" >Рисовать на карте</button>
@@ -1850,9 +1915,9 @@ echo "alPiks-".$alPiks."<br>";*/
 	//alert('event');
 	var ArrEvent = []; 
 	var arrEv = JSON.parse('<?=json_encode($arrEv)?>');	
-	var scale = '<?=$scale?>'; //scale= parseInt(scale, 10);
+//	var scale = '<?=$scale?>'; //scale= parseInt(scale, 10);
 		//кол-во лет и начальный год используется для всей таблицы
-	var nun_years = <?=$num_years?>;
+//	var nun_years = <?=$num_years?>;
 	var year_begin = parseInt('<?=$ArrDMin[0]?>');
 
 //если svg не работает то отрисовываем графики через табоицу (по старому)
@@ -2431,6 +2496,10 @@ function GroupEventInLine(){
 
 
 	function SVGRender(arrEv) {
+			   //svg
+			   while (svg.lastChild) {
+					svg.removeChild(svg.lastChild);
+				}
 			   var supportsSVG = !!document.createElementNS && !!document.createElementNS("http://www.w3.org/2000/svg", "svg").createSVGRect;
 			//После этой проверки легко найти все случаи использования SVG и заменить пути к векторным изображениям на пути к альтернативной растровой графике.
 			if(supportsSVG){
@@ -2637,6 +2706,7 @@ function AddEventToSvg(event,line){
 //выводим временную рамку с текстом события	
 //function showEvent(event,text,id){
 function showEvent(event,arrText){
+	
 	//alert('arrText-'+arrText)
 	if (!event) event = window.event;
 	
@@ -2646,14 +2716,15 @@ function showEvent(event,arrText){
 				//x[i].style['border'] = '0px solid black';
 				hide(x[i]);
 			}
-	
-			text = '';
+
+			text1 = '';
 			var classname = ''
 			for (var i = 0; i < arrText.length; i++) {
-				text+="<span onclick='goEvent("+arrText[i][0]+")' style='cursor:pointer; text-decoration:underline; color:blue;'>показать...</span><br />"+arrText[i][1]+"<br />"
+				text1+="<span onclick='goEvent("+arrText[i][0]+")' style='cursor:pointer; text-decoration:underline; color:blue;'>показать...</span><br />"+arrText[i][1]+"<br />"
 				
 				classname += ' ev_lab_'+ arrText[i][0];
 			}
+	
 	
 			//obj=document.getElementById('ev_lab_'+id)
 			obj=document.getElementsByClassName("ev_lab_"+arrText[0][0])
@@ -2664,7 +2735,7 @@ function showEvent(event,arrText){
 				var el = document.createElement('div');  //создаем див для формы
 				el.innerHTML = "<span onclick='hide(this.parentNode) ' style='cursor:pointer; float:right; margin: -10px -5px 0 0;' > <span style='color:black;'>_</span><b>x</b><span style='color:black;'>_ </span></span><br />";  //закрывание этого списка
 				//el.innerHTML += "<span onclick='goEvent("+id+")' style='cursor:pointer; text-decoration:underline; color:blue;'>показать...</span><br />"+text
-				el.innerHTML +=text;
+				el.innerHTML +=text1;
 				el.style['padding'] = '10px';
 				el.style.overflow = "auto"; //overflow:auto;
 				el.style['border'] = '1px solid black';
@@ -2733,6 +2804,7 @@ function goEvent(id){
 }
 
 function GetMapObjAndShow(){
+	
 			//получаем массив объектов на карте
 		$.ajax({
 		  async: false, 
@@ -2786,6 +2858,7 @@ function hide(obj){
 
 //при клике на таблице показываем событие в графике
 function ShowOnGraph(id,n){
+	
 	CurrentEnentNum = id;
 	//ShowMap(CurrentEnentNum);
 	//getElementsByC.style.fill='blue';
