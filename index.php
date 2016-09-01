@@ -1,4 +1,4 @@
-<? 
+<?  
 	header('Content-Type: text/html; charset=utf-8');//собираем всю информацию об защедщих на сайт
 
 	
@@ -1420,7 +1420,8 @@ echo "alPiks-".$alPiks."<br>";*/
 							<br />
 							<input type="text" name="Placemark" class="objShapeCh" />  псевдоним "Меток" на карте (пр. Объекты)						
 							</div>
-						</td>
+						</td>
+
 					</tr>
 				</table>
 			</div>
