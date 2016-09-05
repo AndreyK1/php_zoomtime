@@ -844,7 +844,8 @@ function initYa1()
 					GeoArrowToMap(myMap,ArrowKoord,header,description,body,objColor,Weight,false);			
 				}
 				if(objShape == 'Placemark'){
-										msg = '*Для изменения расположения метки на карте не отжимая ctrl кликните на новое место.<br /> *Чтобы зафиксировать метку отожмите ctrl и кликните на карте';
+					
+					msg = '*Для изменения расположения метки на карте не отжимая ctrl кликните на новое место.<br /> *Чтобы зафиксировать метку отожмите ctrl и кликните на карте';
 					//PlacemarkKoord.push(e.get('coords'));
 					//PlacemarkKoord = e.get('coords');
 					PlacemarkKoord = coordPos;
@@ -1032,14 +1033,51 @@ function GetJSONMapObjects(arr,objN){
 	console.log(arrObjToBD);*/
 }
 
+//изменение размеров карты
+function mapSizeChange(obj,per){
+	//alert('mapSizeChange')
+	//alert(obj.value)
+	var param =''
+	if(per =="x"){
+		$('#map-canvas').width(obj.value)
+		param = 'MapWeidth';
+	}
+	if(per =="y"){
+		$('#map-canvas').height(obj.value)
+		param = 'MapHeight';
+	}
+
+console.log(myMap)
+	myMap.container.fitToViewport()
+	// $('#map-canvas').width()
+	//сохраняем в куки
+
+	//$_COOKIE['password']
+		$.ajax({
+	  async: true, 
+	  url: 'blocks/dinamic_scripts/SessionCoockieOperations.php',
+	  data: {par:param,value:obj.value},
+	  type: "POST",
+	  //success: function(data) {   alert(data);  }//,
+		//dataType: 'json'
+	})
+}
+
+
 //перерисовка меню обьектов на карте
 function DrowMapObjectList(){
 	//console.log('DrowMapObjectList2')
 						document.getElementById('map-menu').innerHTML = '';
 					var maWidth = $('#map-canvas').width()
 					//console.log('masp width -'+maWidth);
-					menu = $('<ul class="menuMapObj" style="left:'+(maWidth-50)+'px;"/>');
-						
+					//menu = $('<ul class="menuMapObj" style="left:'+(maWidth-50)+'px;"/>');
+						//Размеры карты
+
+
+						menu = $('<ul class="menuMapObj" style="left:'+(maWidth-50)+'px;">'+
+								'<li><b style="font-size:10px;">Размер</b> X<input type="text" size="1" value="'+maWidth+'" onchange="mapSizeChange(this,\'x\')" /> Y<input type="text" size="1" value="'+$('#map-canvas').height()+'" onchange="mapSizeChange(this,\'y\')"/></li>'							
+							+'</ul>'
+							);
 						
 						if(Placemarks.length >0){
 							// Контейнер для подменю.

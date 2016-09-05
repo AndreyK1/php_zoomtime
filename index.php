@@ -1356,19 +1356,19 @@ echo "alPiks-".$alPiks."<br>";*/
         <?	if($arrEv !=null){?>
             <br /><br /><p><b>По заданым критериям найдены следующие события/даты</b></p>
         <?}?>
-		<svg id="svg_table" version="1.1" width="20" height="20" 
-			<!--viewBox="0 0 1280 1024" baseProfile="full" -->
-			xmlns="http://www.w3.org/2000/svg" 
-			xmlns:xlink="http://www.w3.org/1999/xlink" 
-			xmlns:ev="http://www.w3.org/2001/xml-events">
-					<!--  <text x="10" y="50" font-size="30">My SVG</text>
-					  <rect x="30" y="50" width="120" height="50" style="fill-opacity: 0.7; fill: red;"></rect>
-					  
-					<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
-					<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
-		</svg>	
-		
-		
+		<div style="border:1px solid green;  position:relative; overflow:auto;" id="div_svg">
+			<svg id="svg_table" version="1.1" width="20" height="20" 
+				<!--viewBox="0 0 1280 1024" baseProfile="full" -->
+				xmlns="http://www.w3.org/2000/svg" 
+				xmlns:xlink="http://www.w3.org/1999/xlink" 
+				xmlns:ev="http://www.w3.org/2001/xml-events">
+						<!--  <text x="10" y="50" font-size="30">My SVG</text>
+						  <rect x="30" y="50" width="120" height="50" style="fill-opacity: 0.7; fill: red;"></rect>
+						  
+						<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
+						<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
+			</svg>	
+		</div>		
 		<script>
 			function showk(){
 				if($('#allias').css('display')=='none'){
@@ -1376,9 +1376,9 @@ echo "alPiks-".$alPiks."<br>";*/
 				}else{
 					$('#allias').css('display','none')
 				}
-			}
+			} //showEvent
 		</script>
-		<br /><br />
+		
 		<? if($IsRedactor){ ?>
 			<div style='border:1px solid green; display:none;' id="mapObject-menu" >
 				<table>
@@ -1430,7 +1430,18 @@ echo "alPiks-".$alPiks."<br>";*/
 		<? if($IsRedactor){ ?>
 			<div id="map-helper" style='position:relative; display:none;'></div>
 		<?}?>
-		<div  id="map-canvas" style="width:1400px; height:900px; display:none;" width="300" height="300" ></div>
+		<? 
+		$MapWeidth = 900;
+		$MapHeight = 500;
+		if(isset($_COOKIE['MapWeidth'])){
+			$MapWeidth = $_COOKIE['MapWeidth'];
+		}
+		if(isset($_COOKIE['MapHeight'])){
+			$MapHeight = $_COOKIE['MapHeight'];
+		}
+		?>
+
+		<div  id="map-canvas" style="width:<?=$MapWeidth?>px; height:<?=$MapHeight?>px; display:none;" width="300" height="300" ></div>
 		
 		<? if($_SESSION['Guest_id']['id_user'] == $AdminID){ ?>
             <button type="button" id="ShowM" onclick="ShowMap(null);" >Рисовать на карте</button>
@@ -2680,7 +2691,7 @@ function AddEventToSvg(event,line){
 	
 	var idR = ''//event['arrDates']	
 	for (var i = 0; i < event['arrDates'].length; i++) {
-		idR += " event_win_"+event['arrDates'][i][0];
+		idR += "event_win_"+event['arrDates'][i][0];
 	}
 	r.id =idR;
 	
@@ -2691,7 +2702,10 @@ function AddEventToSvg(event,line){
 		//r.onclick = function(){alert(text)}
 		//r.addEventListener("mouseover",function(){alert(text)}) ;
 		//r.addEventListener("mouseover",function(e){showEvent(e,arrText,id);} );
-		r.addEventListener("mouseover",function(e){showEvent(e,arrText);} );
+		r.addEventListener("mouseover",function(e){ 
+			console.log("addEventListener");
+			showEvent(e,arrText,event['id'],r);} 
+		);
 	})(event['arrDates']);
 	svg.appendChild(r);
 		
@@ -2706,12 +2720,36 @@ function AddEventToSvg(event,line){
 	
 //выводим временную рамку с текстом события	
 //function showEvent(event,text,id){
-function showEvent(event,arrText){
+function showEvent(event,arrText,id,th){
 	
+	console.log("showEvent")
+	//- $("#div_svg").offset().top
 	//alert('arrText-'+arrText)
-	if (!event) event = window.event;
+	if (!event){
+		event = window.event;
+
+	}
 	
-			var x = document.getElementsByClassName("ev_lab_cl")
+	coord = {
+		pageX : 0,
+		pageY : 0
+	}
+
+	if(th !=0){
+		//находим координаты элемента внутри блока div_svg, для дальнейшего добавления текста
+			var th = document.getElementById("event_win_"+id); //
+			
+			//console.log(th)
+			//console.log("scrollLeft-"+$("#div_svg").scrollLeft()) 
+		//	console.log($(th).offset().left - $("#div_svg").offset().top);
+			coord.pageX = $(th).offset().left  + $("#div_svg").scrollLeft()
+			coord.pageY=  ($(th).offset().top - $("#div_svg").offset().top)
+	
+		//console.log("$(th).offset().left-"+$(th).offset().left);
+		//console.log("$(#div_svg).offset().top-"+ $("#div_svg").offset().top+"$(th).offset().top-"+ $(th).offset().top) 
+	}
+
+		var x = document.getElementsByClassName("ev_lab_cl")
 			for (var i = 0; i < x.length; i++) {
 				//alert(x[i].innerHTML)
 				//x[i].style['border'] = '0px solid black';
@@ -2747,13 +2785,17 @@ function showEvent(event,arrText){
 				//background: rgba(180, 180, 180, 0.4);
 				//el.style['color'] = 'white';	
 				el.style.position = 'absolute';
+		//el.style.position = 'fixed';
 				//el.style.position = 'fixed';
-					el.style['left'] = event.pageX+"px";
-					el.style['top'] = event.pageY+"px";
+					el.style['left'] = coord.pageX+"px";
+					el.style['top'] = coord.pageY+"px";
 					//alert(event.pageX +"--"+event.pageY)
 				//	el.id = 'ev_lab_'+id
 					el.className = 'ev_lab_cl '+classname;
-				document.body.appendChild(el)
+					//el.zIndex = 10000000;
+
+//				document.body.appendChild(el)
+		document.getElementById("div_svg").appendChild(el)
 			}
 			//el.addEventListener("onclick",function(e){showEvent(e,text,id);}
 			
@@ -2874,6 +2916,7 @@ function ShowOnGraph(id,n){
 		}
 	}	
 	
+ console.log("ShowOnGraph idN"+idN)
 	/*var elll = document.getElementById('event_win_'+id);
 	//elll.style['border'] = '2px solid red';
 	elll.style.fill='red';
@@ -2885,17 +2928,27 @@ function ShowOnGraph(id,n){
 		var elll = document.getElementById(idN);
 		elll.style['border'] = '2px solid red';
 		elll.style.fill='red';
-				$("html,body").animate({scrollTop: $(elll).offset().top-200,
+//				$("html,body").animate({scrollTop: $(elll).offset().top-200,
+			$("html,body #div_svg").animate({scrollTop: 0,scrollLeft:0},0);
+		
+		//console.log("ShowOnGraph  scrollTop"+$(elll).offset().top-200 + " -scrollLeft- " +$(elll).offset().left-300)
+console.log($(elll).offset().top-200);
+
+		$("html,body #div_svg").animate({scrollTop: $(elll).offset().top-200,
 				scrollLeft: $(elll).offset().left-300
-			}, 1000);	
+			}, 100);	
 				
-				var evEm={
+				
+			//var elll = document.getElementById(idN);
+				/*var evEm={
 					pageX : $(elll).offset().left,
-					pageY: $(elll).offset().top
-				}
+					pageY: $(elll).offset().top - $("#div_svg").offset().top
+				}*/
 				
+				console.log($("#div_svg"));
+
 				//console.log(arrEv);
-				showEvent(evEm,[[id,arrEv[n]['event']]])
+				showEvent(null,[[id,arrEv[n]['event']]],id,elll)
 				//setTimeout(function(){$('#'+idN).mouseover();},2000);
 				
 				/*ent.pageX+"px";
