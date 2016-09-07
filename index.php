@@ -616,7 +616,7 @@ if(($id_theme!='')){
 	/*echo "<br><br>minDate-".$minDate;	
 	echo "<br>maxDate-".$maxDate;
 	echo "<br>num_years-".$num_years;*/
-	
+/*	
 	if($num_years>1000){ 	$_SESSION['Date_b'] = null; $_SESSION['id_theme'] = null;
 		$_SESSION['Date_e'] = null;  
 		
@@ -624,7 +624,7 @@ if(($id_theme!='')){
 		//die("Слишком большой промежуток времени более 1000лет!");
 		echo "Слишком большой промежуток времени более 1000лет!";
 	}
-	
+*/
 	//Маштаб
 
 		$scale = 3;  //*10 пикселей в месяце
@@ -666,56 +666,6 @@ if(($id_theme!='')){
 <script type="text/javascript" src="https://api-maps.yandex.ru/2.1.14/?lang=ru_RU"></script>
 <link rel="stylesheet" type="text/css" href="css/style.css"  />
 
- <style type="text/css">
-TD{
-    padding: 0px; /* Поля вокруг текста */
-	/*border-left:1px solid red;*/
-   }
- 
-.year{
-	border-left:1px solid red;
-} 
-   
-#SpeechFilterForm, .vdiskus{ 
-	background: -webkit-gradient(linear, left top, right  top, from(#EAEAEA), to(#BBBBBB)); background: -moz-linear-gradient(left top, #EAEAEA, #BBBBBB);  
-}
-
-
-
-        html, body, #mapYa {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        #menuYa {
-            position: absolute;
-            width: 12em;
-            background: #FFFFCC;
-            border: 3px solid #006600;
-            border-radius: 12px;
-            padding-bottom: 10px;
-            z-index: 2
-        }
-        #menuYa ul {
-            list-style-type: none;
-            padding: 20px;
-            margin: 0;
-        }
-        #menuYa input {
-            width: 10em;
-        }
-
-        .menuMapObj{
-            position: absolute;
-			top:100px;
-			z-index:5;
-			background-color:white;
-			padding:5px;
-			border:1px solid green;
-        }
-		
-</style>
 <script type="text/javascript" src="blocks/dinamic_scripts/CreateElementOnScreen.js"></script><!--подключаем для создания плавающих окон -->	
 <script>
 
@@ -813,37 +763,6 @@ yearB = <?=$ArrDMin[0]?>-1+1;
 </script>
 	
 	
-	
-	<div style="z-index:100; position:fixed; top:200px; margin-left: 93%;" title='Маштаб'>
-		<br />
-		<? 
-			
-			$sledScalePl = $scale*2;  
-			 //echo $sledScalePl;
-			$sledScalePl=str_replace(',','.',$sledScalePl); 
-			// echo $sledScalePl;
-			echo $scale;
-		?>
-		<div style='border:3px solid green; margin-bottom:5px; color:green; font-size:35px; cursor:pointer;' ><!--<a href='index.php?scale=<?=$sledScalePl?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;+&nbsp;</a>-->
-				<span onclick="ChangeScale('+')" style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;+&nbsp;</span>
-		</div>
-		<? 
-			if($scale <= 1){
-				$sledScaleMin = $scale/2;
-			}else{
-				$sledScaleMin = ceil($scale/2); 
-			}
-			$sledScaleMin=str_replace(',','.',$sledScaleMin); 
-			
-		?>
-		<div style='border:3px solid green; color:green; font-size:35px; cursor:pointer;'><!--<a href='index.php?scale=<?=$sledScaleMin?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;&ndash;&nbsp;</a>-->
-			<span onclick="ChangeScale('-')" style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;-&nbsp;</span>
-		</div>
-	</div>
-	
-	
-	
-	
 	<?
 //считаем кол-во дней от начала для закрашивания
 $dayFromBeg = ($ArrDMin[1]-1)*30+$ArrDMin[2];
@@ -890,89 +809,120 @@ echo "alPiks-".$alPiks."<br>";*/
 	
 	
 	?>
-	<a class='vdiskus' href="index.php" title="Перейти на главную страницу сети новостей России и всего мира"><< Главная страница</a> |
-	<a class='vdiskus' href="ShowDate.php?EvBy10" title="события" > Список событий и дат </a> |
-	<a class='vdiskus' href="ShowNews.php" title="новости" > Список новостей </a>
+
 	<!--<a class='vdiskus' href="index.php?c=soobsh" title="Обзор новостей в России и по всему миру " > Обзор новостей</a> |
 	<a class='vdiskus' href="SpeechWind.php?c=soobsh" title="Высказывания, речи, диалоги, обращения известных людей и политиков, также историков, аналитиков и т.д." > Диалоги известных людей</a> |
 	<a class='vdiskus' href="PersonsStruct.php?avtor=all" title="Известные люди и политики, а также историки, аналитики и т.д. в мировой структуре (иерархия)" > Иерархия известных людей</a> |
 	-->
 		
 	
-	<!--Форма фильтра -->
-	<div id="SpeechFilterForm" style='padding:8px;' >
-		<form id='AvtorForm' method='post' action='index.php' >
-			<input type='hidden' value='<?=$eventN?>' name='eventN' id='eventsIds' />
-
-			<fieldset style='float:left;'>
-			<legend><b>Фильтр</b></legend>
-			<div>
-				<div style='float:left;'>
-					где искать<select  name='ffff' onChange='SelectWhere(this)'  ><!--style="display:none;"-->
-							<option value='0' <?if(!$onlyNews){ echo "selected";}?> >История</option>
-							<option value='1' <?if($onlyNews){ echo "selected";}?> >Новости</option>
-							</select><br />
-					<b>Диапазон дат</b><br />
-					<input type='text'  style='width:70px;' value='<?=$DateForFormBeg?>' onclick='kalend(this,event);' name='DateBeg' id='DateBeg' /><b> начало</b>
-					<br />
-					<input type='text' style='width:70px;' value='<?=$DateForFormEnd?>' onclick='kalend(this,event);' name='DateEnd' id='DateEnd' /><b> окончание</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					<br />
-					<input type="checkbox" name="included" <?if($included){ echo "checked";}?> > <b title='иначе только события начинающиея и заканчивающиеся внутри диапазона'>включительно</b>
-					<br />
-					<input type='hidden' name='postback' value='1' >
-				</div>
-				<div style='float:left; ' >
-					<b>Ключевые слова</b><br />
-					<input type='text' value='<?=$KeyWords?>'  name='KeyWords' id='KeyWords' /> 
-					<br />
-				</div>
-			</div>
-			<div style="clear:both;"></div>
-			<input type='submit' value='отобрать по фильтру' />
+<!--	<div id="OuterSpeechFilterForm" style="position:relative;">-->
+		<!--Форма фильтра -->
+		<div id="SpeechFilterForm" style='padding:8px; position:fixed; z-index: 101;'  >
 			
-			</fieldset>
-			
-			<fieldset style='float:left;'>
-			<legend><b><a href='pass.php' style='text-decoration:none; color:black;'>О<a/>тобрать по теме</b></legend>
-				<input type="checkbox" name="DateNoInTheme" <?if($DateNoInTheme){ echo "checked";}?> onchange="document.getElementById('AvtorForm').submit(); return;" > <b title='не соспоставлять диапазон дат датами событий темы'>даты не по теме</b>
-				<br />
-				<input type='text'  style='width:270px;' value='<?=$theme?>' onkeyup='ShowThemeList(this);' name='ddd' id='DateBeg' /><!--<b> название</b>-->
-					<div style="position:relative;">
-						<div style="position:absolute;"><!---->
-						<select id='selectMod'  name='avtorNameCh' onChange='SelectTheme(this)'  ><!--style="display:none;"-->
-							<option value='' >выберите тему</option>
-							<?foreach($arrTheme as $th){?>
-								<option value='<?=$th['id']?>' ><?=$th['Theme']?></option>
-							<?}?>
-						</select>
-						
 
+			<form  method='post' action='index.php' >
+				<input type='hidden' value='1' name='eraseFilter'  />
+				<input type='submit' value="Сбросить весь  фильтр" />
+				&nbsp;&nbsp;&nbsp;<input type='text' size="7" / class="toHideFilterForm">&nbsp;<button class="toHideFilterForm" >Поиск</button>
+			</form>
+
+
+
+		<a class='vdiskus' href="index.php?eraseFilter=1" title="Перейти на главную страницу сети новостей России и всего мира"><< Главная страница</a> |
+		<a class='vdiskus' href="ShowDate.php?EvBy10" title="события" > Список событий и дат </a> |
+		<a class='vdiskus' href="ShowNews.php" title="новости" > Список новостей </a>			
+
+
+			<div id="innerForm" style="display:none;">
+				<form id='AvtorForm' method='post' action='index.php' >
+					<input type='hidden' value='<?=$eventN?>' name='eventN' id='eventsIds' />
+
+					<fieldset style='float:left;'>
+					<legend><b>Фильтр</b></legend>
+					<div>
+						<div style='float:left;'>
+							где искать<select  name='ffff' onChange='SelectWhere(this)'  ><!--style="display:none;"-->
+									<option value='0' <?if(!$onlyNews){ echo "selected";}?> >История</option>
+									<option value='1' <?if($onlyNews){ echo "selected";}?> >Новости</option>
+									</select><br />
+							<b>Диапазон дат</b><br />
+							<input type='text'  style='width:70px;' value='<?=$DateForFormBeg?>' onclick='kalend(this,event);' name='DateBeg' id='DateBeg' /><b> начало</b>
+							<br />
+							<input type='text' style='width:70px;' value='<?=$DateForFormEnd?>' onclick='kalend(this,event);' name='DateEnd' id='DateEnd' /><b> окончание</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<br />
+							<input type="checkbox" name="included" <?if($included){ echo "checked";}?> > <b title='иначе только события начинающиея и заканчивающиеся внутри диапазона'>включительно</b>
+							<br />
+							<input type='hidden' name='postback' value='1' >
+						</div>
+						<div style='float:left; ' >
+							<b>Ключевые слова</b><br />
+							<input type='text' value='<?=$KeyWords?>'  name='KeyWords' id='KeyWords' /> 
+							<br />
+						</div>
 					</div>
-					<br />
-					</div>
+					<div style="clear:both;"></div>
+					<input type='submit' value='отобрать по фильтру' />
+					
+					</fieldset>
+					
+					<fieldset style='float:left;'>
+					<legend><b><a href='pass.php' style='text-decoration:none; color:black;'>О<a/>тобрать по теме</b></legend>
+						<input type="checkbox" name="DateNoInTheme" <?if($DateNoInTheme){ echo "checked";}?> onchange="document.getElementById('AvtorForm').submit(); return;" > <b title='не соспоставлять диапазон дат датами событий темы'>даты не по теме</b>
+						<br />
+						<input type='text'  style='width:270px;' value='<?=$theme?>' onkeyup='ShowThemeList(this);' name='ddd' id='DateBeg' /><!--<b> название</b>-->
+							<div style="position:relative;">
+								<div style="position:absolute;"><!---->
+								<select id='selectMod'  name='avtorNameCh' onChange='SelectTheme(this)'  ><!--style="display:none;"-->
+									<option value='' >выберите тему</option>
+									<?foreach($arrTheme as $th){?>
+										<option value='<?=$th['id']?>' ><?=$th['Theme']?></option>
+									<?}?>
+								</select>
+								
+
+							</div>
+							<br />
+							</div>
 
 
-			</fieldset>
-			<!--
-			<fieldset style='float:left;'>
-			<legend><b>Новостной обзор</b></legend>
-				<input type="checkbox" name="NewsUsage" <?if($NewsUsage){ echo "checked";}?> onchange="document.getElementById('AvtorForm').submit(); return;" > <b title='выводить ли события новостей (в т.ч. заголовки новостей)'>включить новостной поиск</b>
-			</fieldset>
-			-->
-			<div style="clear:both;"></div>
-			
-		</form>
-		<form  method='post' action='index.php' >
-			<input type='hidden' value='1' name='eraseFilter'  />
+					</fieldset>
+					<!--
+					<fieldset style='float:left;'>
+					<legend><b>Новостной обзор</b></legend>
+						<input type="checkbox" name="NewsUsage" <?if($NewsUsage){ echo "checked";}?> onchange="document.getElementById('AvtorForm').submit(); return;" > <b title='выводить ли события новостей (в т.ч. заголовки новостей)'>включить новостной поиск</b>
+					</fieldset>
+					-->
+					<div style="clear:both;"></div>
+					
+				</form>
 			<br />
-			<input type='submit' value="Сбросить весь  фильтр" />
-		</form>
-
+		</div>
 		
-	</div>
+		</div>
 
+
+
+	<!--</div>-->
+	<br /><br />
 	
-	
+	<script>//работа по выплыванию формы
+	$(document).ready(function() {
+		$('#SpeechFilterForm').mouseenter(function(){
+			$('#innerForm').show(700)
+			$('.toHideFilterForm').hide(700)
+		 		 //alert('enter');
+		})
+	});
+	$(document).ready(function() {
+		$('#SpeechFilterForm').mouseleave(function(){
+		 		 //alert('leave');
+		 		 $('#innerForm').hide(700)
+		 		 $('.toHideFilterForm').show(700)
+		})
+	});
+	</script>
+
 	<script>//добавление отдельных событий в таблицу
 
 		function SelectWhere(obj){//искать по событиям истории или новостям
@@ -1354,9 +1304,42 @@ echo "alPiks-".$alPiks."<br>";*/
 		
         
         <?	if($arrEv !=null){?>
-            <br /><br /><p><b>По заданым критериям найдены следующие события/даты</b></p>
+            <br/><b>По заданым критериям найдены следующие события/даты</b>
         <?}?>
-		<div style="border:1px solid green;  position:relative; overflow:auto;" id="div_svg">
+		
+        <div style="border:3px solid green;  position:relative;">
+				<!-- шкала -->
+				<!--<div style="z-index:100; position:fixed; top:100px; margin-left: 3%;" title='Маштаб'>-->
+				<div style="z-index:100; position:absolute; top:-5px; margin-left: 2%;" title='Маштаб'>
+					<br />
+					<? 
+						
+						$sledScalePl = $scale*2;  
+						 //echo $sledScalePl;
+						$sledScalePl=str_replace(',','.',$sledScalePl); 
+						// echo $sledScalePl;
+						//echo $scale;
+					?>
+					<div style='border:3px solid orange; margin-bottom:5px; color:orange; font-size:35px; cursor:pointer;' >
+							<span onclick="ChangeScale('+')" style='font-weight:bold; text-decoration:none; color:orange;' >&nbsp;+&nbsp;</span>
+					</div>
+					<? 
+						if($scale <= 1){
+							$sledScaleMin = $scale/2;
+						}else{
+							$sledScaleMin = ceil($scale/2); 
+						}
+						$sledScaleMin=str_replace(',','.',$sledScaleMin); 
+						
+					?>
+					<div style='border:3px solid orange; color:orange; font-size:35px; cursor:pointer;'><?/*<a href='index.php?scale=<?=$sledScaleMin?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;&ndash;&nbsp;</a>*/?>
+						<span onclick="ChangeScale('-')" style='font-weight:bold; text-decoration:none; color:orange;' >&nbsp;-&nbsp;</span>
+					</div>
+				</div>
+		
+		<div style="position:relative; overflow:auto;" id="div_svg">
+
+
 			<svg id="svg_table" version="1.1" width="20" height="20" 
 				<!--viewBox="0 0 1280 1024" baseProfile="full" -->
 				xmlns="http://www.w3.org/2000/svg" 
@@ -1368,7 +1351,8 @@ echo "alPiks-".$alPiks."<br>";*/
 						<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
 						<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
 			</svg>	
-		</div>		
+		</div>
+	</div>		
 		<script>
 			function showk(){
 				if($('#allias').css('display')=='none'){
@@ -1446,7 +1430,7 @@ echo "alPiks-".$alPiks."<br>";*/
 		<? if($_SESSION['Guest_id']['id_user'] == $AdminID){ ?>
             <button type="button" id="ShowM" onclick="ShowMap(null);" >Рисовать на карте</button>
         <?}?>
-		<br />
+
 		
 		<? if($IsRedactor){ ?>
 			<iframe  name="h_iframe" width="700" height="100" style="display: none;"></iframe><!-- фрейм для загрузки страницы  onchange="document.forms['img_upload'].submit();"  -->
@@ -1727,69 +1711,111 @@ echo "alPiks-".$alPiks."<br>";*/
 					)
 					
 				});
+
 			</script>
 		<?}?>
-		<table  border='1' cellspacing='0'   ><!--style='text-align:center;'-->
-		<?
-		
-		for($i=0; $i<count($arrEv); $i++ ){		?>
-			<!--<div id='<?=$arrEv[$i]['Url_ins']?>-DivNews' ><a href='index.php?c=soobsh&id_soobsh=<?=$arrEv[$i]['Url_ins']?>' title='<?=$titl_nT?>' ><?=$titl_nE?> :  <?=$dat[0]?></a></div>-->
-			<tr   >
-				<?if($arrEv[$i]['dateE1'] != ''){ $title='Дата начала события';}else{ $title='Дата события';}?>
-				<td   style='text-align:right; padding:3px;' title='<?=$title?>' >
-					<?=$arrEv[$i]['dateB1']?>
-				</td>
-				
-				
-				<td style='text-align:right; padding:3px; position:relative;'  <?if($arrEv[$i]['dateE1'] != ''){ echo " title='Дата окончания события' ";}?>  >
-					<?=$arrEv[$i]['dateE1']?> 
-				</td>	
-				<td style=' padding:0px; margin:0px;'  >
-						   <div style='position:relative;' >
-						   <? if(!$arrEv[$i]['map_objects']){ 
 
+			<script>
+				function ChangeDateTableSize(){
+					var DateTableClass = "minDateTable";
+					if($('#DateTable').hasClass('minDateTable')){
+						$('#DateTable').removeClass('minDateTable')
+						$('#DateTable').addClass('maxDateTable')
+						var DateTableClass = "maxDateTable";
+					}else{
+						$('#DateTable').removeClass('maxDateTable')
+						$('#DateTable').addClass('minDateTable')						
+					}
+					$.ajax({
+					  async: true, 
+					  url: 'blocks/dinamic_scripts/SessionCoockieOperations.php',
+					  data: {DateTableClass:DateTableClass},
+					  type: "POST",
+					 // success: function(data) {   alert(data);  }//,
+						//dataType: 'json'
+					})
+				}
+			</script>		
+		<? 
+
+		$DateTableClass = "minDateTable";
+		if(isset($_COOKIE['DateTableClass'])){
+			if($_COOKIE['DateTableClass'] =="maxDateTable"){
+				$DateTableClass = "maxDateTable";
+			}
+			
+		}		
+		?>
+		<div style="position:relative;">
+				<!--<div style="z-index:100; position:absolute; top:-5px; margin-left: 2%;" title='Маштаб'>-->
+					<div title="растянуть/сжать" style='top:7px; margin-left: 2%; z-index:100; position:absolute; border:3px solid orange; margin-bottom:5px; color:orange; font-size:35px; cursor:pointer;' >
+							<span onclick="ChangeDateTableSize()" style='font-weight:bold; text-decoration:none; color:orange;' >&nbsp;↕&nbsp;</span>
+					</div>
+
+			<div id="DateTable" style="border:3px solid green; overflow:auto;" class="<?=$DateTableClass?>">
+			<table  border='0'  cellspacing='0'   ><!--style='text-align:center;'-->
+			<?
+			
+			for($i=0; $i<count($arrEv); $i++ ){		?>
+				<!--<div id='<?=$arrEv[$i]['Url_ins']?>-DivNews' ><a href='index.php?c=soobsh&id_soobsh=<?=$arrEv[$i]['Url_ins']?>' title='<?=$titl_nT?>' ><?=$titl_nE?> :  <?=$dat[0]?></a></div>-->
+				<tr <?if($i%2==0){?> style="background-color:#eee"<?}?>  >
+					<?if($arrEv[$i]['dateE1'] != ''){ $title='Дата начала события';}else{ $title='Дата события';}?>
+					<td   style='text-align:right; padding:3px;' title='<?=$title?>' >
+						<?=$arrEv[$i]['dateB1']?>
+					</td>
+					
+					
+					<td style='text-align:right; padding:3px; position:relative; border-right:2px solid #999;'  <?if($arrEv[$i]['dateE1'] != ''){ echo " title='Дата окончания события' ";}?>  >
+						<?=$arrEv[$i]['dateE1']?> 
+					</td>	
+					<td style=' padding:0px; margin:0px;'  >
+							   <div style='position:relative;' >
+							   <? if(!$arrEv[$i]['map_objects']){ 
+
+								   if($arrEv[$i]['mapPict'] !=''){ 
+										//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
+										echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
+										echo "<b style='cursor:pointer; color:red; position:absolute; top:-7px; left:-18px;' onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' >карта</b>";
+								   }else{
+										echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/mapvector1.jpg'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
+								   }
+								   
+							   }?>
+								</div>						   
+					</td>
+					<td style='text-align:left; padding:3px;' >
+					<!--* <a href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' ><?=$date?> : <?=$arrEv[$i]['titl_nE']?></a>-->
+					<? if(count($arrEv[$i]['country'])>1){ echo "<b style='color:red'>".count($arrEv[$i]['country'])."</b>";}?><select  name='co' title='страны связанные с событиями/датами' >
+						<?foreach($arrEv[$i]['country'] as $ke=>$co){?>
+						<option value='<?=$ke?>' ><?=$co?></option>
+					<?}?>
+					</select>
+					<b title='категория события' style=' color:green; font-size:10px; '><?=$CategoryArr[$arrEv[$i]['category']]?></b>
+					<?//var_dump($arrEv[$i]['country']);?>
+					
+					<span style='cursor:pointer;' id='date_tr_<?=$arrEv[$i]['id']?>' class='date_tr_cl' onclick="ShowOnGraph(<?=$arrEv[$i]['id']?>,<?=$i?>)"><?=$arrEv[$i]['titl_nE']?></span> <a title="посмотреть информацию о событии" href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' >-- > посмотреть</a>
+					<?if($_SESSION['Guest_id']['id_user'] == $AdminID){ //если админ (выводим меню)?>
+						|||<a href="EditDate.php?DelDate=<?=$arrEv[$i]['id']?>" target="blank" >удалить Дату </a> ||| <a href="EditDate.php?EditDate=<?=$arrEv[$i]['id']?>" target="blank" >редактировать Дату </a>
+					<b onclick='ShowAdminMenu(this,event)' id='Dt-<?=$arrEv[$i]['id']?>' idd='country-<?=$arrEv[$i]['ids_country']?>+elsevar-?' >RED</b>
+					<?}?>
+	                <?
+	                   /* if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange; position:relative;'>map";
+	                       // mapPict
+						   //echo $arrEv[$i]['mapPict'];
 							   if($arrEv[$i]['mapPict'] !=''){ 
 									//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
-									echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
-									echo "<b style='cursor:pointer; color:red; position:absolute; top:-7px; left:-18px;' onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' >карта</b>";
-							   }else{
-									echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/mapvector1.jpg'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
+									echo "<img style='cursor:pointer;  position:absolute; top:-18px; left:15px;' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
 							   }
-							   
-						   }?>
-							</div>						   
-				</td>
-				<td style='text-align:left; padding:3px;' >
-				<!--* <a href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' ><?=$date?> : <?=$arrEv[$i]['titl_nE']?></a>-->
-				<? if(count($arrEv[$i]['country'])>1){ echo "<b style='color:red'>".count($arrEv[$i]['country'])."</b>";}?><select  name='co' title='страны связанные с событиями/датами' >
-					<?foreach($arrEv[$i]['country'] as $ke=>$co){?>
-					<option value='<?=$ke?>' ><?=$co?></option>
-				<?}?>
-				</select>
-				<b title='категория события' style=' color:green; font-size:10px; '><?=$CategoryArr[$arrEv[$i]['category']]?></b>
-				<?//var_dump($arrEv[$i]['country']);?>
-				
-				<span style='cursor:pointer;' id='date_tr_<?=$arrEv[$i]['id']?>' class='date_tr_cl' onclick="ShowOnGraph(<?=$arrEv[$i]['id']?>,<?=$i?>)"><?=$arrEv[$i]['titl_nE']?></span> <a title="посмотреть информацию о событии" href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' >-- > посмотреть</a>
-				<?if($_SESSION['Guest_id']['id_user'] == $AdminID){ //если админ (выводим меню)?>
-					|||<a href="EditDate.php?DelDate=<?=$arrEv[$i]['id']?>" target="blank" >удалить Дату </a> ||| <a href="EditDate.php?EditDate=<?=$arrEv[$i]['id']?>" target="blank" >редактировать Дату </a>
-				<b onclick='ShowAdminMenu(this,event)' id='Dt-<?=$arrEv[$i]['id']?>' idd='country-<?=$arrEv[$i]['ids_country']?>+elsevar-?' >RED</b>
-				<?}?>
-                <?
-                   /* if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange; position:relative;'>map";
-                       // mapPict
-					   //echo $arrEv[$i]['mapPict'];
-						   if($arrEv[$i]['mapPict'] !=''){ 
-								//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
-								echo "<img style='cursor:pointer;  position:absolute; top:-18px; left:15px;' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
-						   }
-					   echo "</b>";
-                    }*/
-                ?>
-				</td>
-			</tr>
-				
-		<?}?>
-		</table>
+						   echo "</b>";
+	                    }*/
+	                ?>
+					</td>
+				</tr>
+					
+			<?}?>
+			</table>
+			</div>
+		</div>
 	
 	<?	//	}
 	?>
@@ -2735,9 +2761,10 @@ function showEvent(event,arrText,id,th){
 		pageY : 0
 	}
 
+	console.log(th)
 	if(th !=0){
 		//находим координаты элемента внутри блока div_svg, для дальнейшего добавления текста
-			var th = document.getElementById("event_win_"+id); //
+			//var th = document.getElementById("event_win_"+id); //
 			
 			//console.log(th)
 			//console.log("scrollLeft-"+$("#div_svg").scrollLeft()) 
@@ -2837,10 +2864,26 @@ function goEvent(id){
 			var elll = document.getElementById('date_tr_'+id);
 			elll.style['border'] = '5px solid red';
 
+			//alert("DateTable")
+			
+
 			$("html,body").animate({scrollTop: $(elll).offset().top-200,
 				scrollLeft: $(elll).offset().left-300
-			}, 1000);
+			}, 500);
+
+			$("body #DateTable").animate({scrollTop: $(elll).offset().top-$("#DateTable").offset().top,
+				scrollLeft: $(elll).offset().left-300
+			}, 500);			
 			
+			console.log("1-"+$(elll).offset().top+"  2-"+$("#DateTable").offset().top+" 3-"+$(elll).offset().top)
+
+			/*
+					$("html,body #div_svg").animate({scrollTop: $(elll).offset().top-200,
+				scrollLeft: $(elll).offset().left-300
+			}, 100);	
+			*/
+			//DateTable
+
 			GetMapObjAndShow()
 			
 			

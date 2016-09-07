@@ -11,6 +11,8 @@ if(isset($_POST['par'])){
 
 	$expire = time() + 3600 * 24 * 100;
 	$value = sprintf("%d",$_POST['value']);
+	if($value>2500){ die();}
+
 	if($_POST['par'] == 'MapWeidth'){	
    		setcookie('MapWeidth',$value, $expire,'/');
    		//echo "MapWeidth";
@@ -19,4 +21,14 @@ if(isset($_POST['par'])){
 		//echo "MapHeight";
 	}
 	
+}
+
+//выставление размера поля с таблицей дат
+if(isset($_POST['DateTableClass'])){
+
+	$expire = time() + 3600 * 24 * 100;
+	//$value = sprintf("%d",$_POST['DateTableHeight']);
+	
+	setcookie('DateTableClass',$_POST['DateTableClass'], $expire,'/');
+	echo $_POST['DateTableClass'];
 }
