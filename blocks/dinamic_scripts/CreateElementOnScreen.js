@@ -95,7 +95,7 @@ function mousePageXY(e) //определение координат мыши
 	elem1.id = 'HidedIcons'; 
 	elem1.innerHTML = "" ;  
 	//document.getElementsByTagName('body')[0].appendChild(elem1);  //elemForm.style.display = 'none';	
-	document.body.appendChild(elem1);
+//	document.body.appendChild(elem1);
 	var a = elem1.offsetWidth/2;
 	//alert(a);
 	elem1.style['left'] = (b-a)+"px";	

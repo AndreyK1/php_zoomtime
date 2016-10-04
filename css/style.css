@@ -1,6 +1,6 @@
 .foto_50{
 	width:250px;
-	height:250px;
+	height:135px;
 }
 .foto_albom{
 	margin:0;
@@ -22,15 +22,18 @@
 .foto50Text{
 	font-size:15px;
 	font-weight:bold;
-	}
+}
 .foto50Text li{
     border:1px solid green;
+    border-radius: 15px;
+    background: #fff;
+    max-width:250px;
 }
 .foto50Text li{
 	margin:4px;
 }
 .minDateTable{
-	height:300px;
+	max-height:500px;
 }
 .maxDateTable{
 }
@@ -84,3 +87,6 @@ html, body, #mapYa {
 	border:1px solid green;
 }
 
+.imgMapIlum{
+	border:3px solid blue;
+}

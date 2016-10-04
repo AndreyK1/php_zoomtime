@@ -352,7 +352,7 @@ function removeMenu(){
 }
 
 function addContextMenu(obj,arr,objN){
-
+	if(!IsRedactor){return;}
 
 			//контекстное меню
 		//https://tech.yandex.ru/maps/jsbox/2.0/geoobject_contextmenu
@@ -388,10 +388,11 @@ function addContextMenu(obj,arr,objN){
 				if(objN == "Rectangle"){		
 					menuContent +=		'<li>Прозрачность: <br /> <input type="text" name="fillOpacity_text" /></li>\
 											<li><b>Координаты</b></>\
-											<li>X Top: <br /> <input type="text" name="X1_text" /></li>\
-											<li>Y Top: <br /> <input type="text" name="Y1_text" /></li>\
-											<li>X Down: <br /> <input type="text" name="X2_text" /></li>\
-											<li>Y Down: <br /> <input type="text" name="Y2_text" /></li>'
+											<li>X Top: <br /> <input type="text" name="Y1_text" /></li>\
+											<li>Y Top: <br /> <input type="text" name="X1_text" /></li>\
+											<li>X Down: <br /> <input type="text" name="Y2_text" /></li>\
+											<li>Y Down: <br /> <input type="text" name="X2_text" /></li>'
+											
 				}	
 	
 				menuContent +=		'<li>Толщина: <br /> <input type="text" name="Width_text" /></li>\
@@ -433,11 +434,13 @@ function addContextMenu(obj,arr,objN){
 				
 				if(objN == "Rectangle"){
 					console.log(obj.geometry.getCoordinates());
+					
 					$('#menuYa input[name="fillOpacity_text"]').val(obj.options.get('fillOpacity'));
 					$('#menuYa input[name="X1_text"]').val(obj.geometry.getCoordinates()[0][0]);
 					$('#menuYa input[name="Y1_text"]').val(obj.geometry.getCoordinates()[0][1]);
 					$('#menuYa input[name="X2_text"]').val(obj.geometry.getCoordinates()[1][0]);
 					$('#menuYa input[name="Y2_text"]').val(obj.geometry.getCoordinates()[1][1]);
+
 					//geometry.getCoordinates()
 				}
 				// При нажатии на кнопку "Сохранить" изменяем свойства метки
@@ -767,7 +770,8 @@ function initYa1()
 	if(IsRedactor){ //если мы можем редактировать, то  вешаем события по рисованию карты
 		//событие при шелчке на карте
 		myMap.events.add('click', function (e) {
-			console.log('click hhhhhhhhhh')
+					
+
 			//alert('Событие на карте'+e.get('coords')); // Возникнет при щелчке на карте, но не на маркере.
 			/*console.log('bbbbbb1');
 			console.log(e);*/
@@ -799,7 +803,12 @@ function initYa1()
 			var coordPos = null;
 			if(typeof(e.originalEvent.ctrlKeyOr) != undefined){ ctrl = e.originalEvent.ctrlKeyOr; alt = e.originalEvent.altKeyOr; coordPos = e.originalEvent.coordPosition; }
 			if(e.get('domEvent')){ ctrl = e.get('domEvent').originalEvent.ctrlKey; alt=e.get('domEvent').originalEvent.altKey; coordPos = e.get('coords'); }
-			
+
+			console.log('click hhhhhhhhhh')
+			//console.log(coordPos);
+			//выводим координаты в инпут
+			document.getElementById('koordOnClick').value = coordPos[1]+" - "+coordPos[0];
+
 			console.log('eeeeeeeeee');
 			console.log(e);
 			console.log(e.originalEvent.ctrlKeyOr);
@@ -1234,7 +1243,7 @@ function changeOpacity(w){
 	if(Rectangles.length >0){
 		for (var i = 0; i < Rectangles.length; i++) {
 			//AddMenuItem(i,Rectangles,submenuRectan,'Rectangle')
-				var next = Rectangles[i].options.get('fillOpacity');
+				var next = parseFloat(Rectangles[i].options.get('fillOpacity'));
 				if(w){ next = next+0.1; if(next >1){ next=1;} }
 				if(!w){ next = next-0.1; if(next <0.1){ next=0.1;} }
 				
@@ -1272,6 +1281,7 @@ function BottomHelper(text,size,color,fontcolor,visible){
 	helperBody.height('40px');
 	helperBody.css('position','absolute')
 	helperBody.css('top',map.height()-40)
+	helperBody.css('left',23)
 	helperBody.css('z-index','100')
 	helperBody.css('background-color',color)
 	helperBody.css('text-align','center')

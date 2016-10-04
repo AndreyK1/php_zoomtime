@@ -61,12 +61,19 @@ if(isset($_SESSION['id_category'])){
 
 if($id_country != ''){
 	//вытаскиваем все страны новостей (если в дальнейшем будет висеть, то сделать при клике на ссылку)
-	$query = "SELECT * FROM  countrys WHERE id = '$id_country' ";
+	
+
+	//$query = "SELECT * FROM  countrys WHERE id  = '$id_country' ";
+	$query = "SELECT * FROM  countrys WHERE id  in ($id_country) ";
 	$result = mysql_query($query) or die(mysql_error());
 		$n = mysql_num_rows($result);
 		if($n >0){
-			$row = mysql_fetch_assoc($result);
-			$country = $row['country'];
+			//$row = mysql_fetch_assoc($result);
+			//$country = $row['country'];			
+			while($row = mysql_fetch_assoc($result)){
+				$country .=','.$row['country'];
+			}
+
 		}	
 
 }
@@ -245,10 +252,11 @@ if(isset($_POST['New_country'])){
 			}
 		}
 		
+		<?//$id_country='';?>
 		
 		function SelectCountry(obj){//отправка формы с id автора
 			//alert(obj.options[obj.selectedIndex].value);
-			document.location.href = 'AddDates.php?id_country='+obj.options[obj.selectedIndex].value;
+			document.location.href = 'AddDates.php?id_country='+'<? if($id_country==''){echo '';}else{echo $id_country.',';} ?>'+obj.options[obj.selectedIndex].value;
 		}
 		 
 		function ChangeCountry(obj){//функция поиска в БД авторов по буквам
@@ -794,11 +802,12 @@ var_dump($AllInfoDateArr);
 	$j=0;
 
 	
-	
+	var_dump($AllInfoDateArr);
 	
 	$lsd = date('Y-m-d H:i:s');
 	//сохраняем в БД
 	for($i=0; $i<count($AllInfoDateArr); $i++){
+		echo '<br>'.$i.'-AllInfoDateArr'.$AllInfoDateArr[$i]['dateE'];
 			$j++;
 	//		if($j>2){ break;}
 			if(!isset($AllInfoDateArr[$i]['dateE'])){ $AllInfoDateArr[$i]['dateE']='00-00-0000'; }
@@ -808,58 +817,88 @@ var_dump($AllInfoDateArr);
 			$event = str_replace('"','“',$event);
 			$event = str_replace('	',' ',$event); 			
 
+			$id_countryInsert = str_replace(',','|', $id_country);
 			
-			
+			$needAddtoTheme = true;
 			if(isset($AllInfoDateArr[$i]['date'])){
 			
-				$query = "INSERT INTO Date_Of_Events  (date_Beg,date_End,event,ids_Theme,date_of_add,ids_country,category) VALUES (STR_TO_DATE('".$AllInfoDateArr[$i]['date']." 00:00:00', '%d-%m-%Y %H:%i:%s'),STR_TO_DATE('".$AllInfoDateArr[$i]['dateE']." 00:00:00', '%d-%m-%Y %H:%i:%s'),'".$event."','".$id_theme."','$lsd','$id_country','$id_category')";	
+				$query = "INSERT INTO Date_Of_Events  (date_Beg,date_End,event,ids_Theme,date_of_add,ids_country,category) VALUES (STR_TO_DATE('".$AllInfoDateArr[$i]['date']." 00:00:00', '%d-%m-%Y %H:%i:%s'),STR_TO_DATE('".$AllInfoDateArr[$i]['dateE']." 00:00:00', '%d-%m-%Y %H:%i:%s'),'".$event."','".$id_theme."','$lsd','$id_countryInsert','$id_category')";	
 				//$query = "INSERT INTO Date_Of_Events  (date_Beg,date_End,event) VALUES (STR_TO_DATE('15-8-1990 00:00:00', '%d-%m-%Y %H:%i:%s'),STR_TO_DATE('00-00-0000 00:00:00', '%d-%m-%Y %H:%i:%s'),'Начал писать события1111')";
 				//echo $query;
 				$result = mysql_query($query);// or die(mysql_error());
 				$id_date = mysql_insert_id ();
 				//echo "id_dateЬ".$id_date;
 				$AllInfoDateArr[$i]['id'] = $id_date;
+
 				
 
 				
-				if(!$result){ 	
-						echo "<h1 style='color:red;'>!!!косяк!!!</h1>".mysql_error();
+				if(!$result){
+						$needAddtoTheme = false; 	
+						echo "<h1 style='color:red;'>!!!косякD!!!</h1>".mysql_error();
 						//если дубликат, то пытаемся к этой дате добавить другую страну
 						
 						//ищем id даты
 						$query = "SELECT id FROM Date_Of_Events WHERE date_Beg = STR_TO_DATE('".$AllInfoDateArr[$i]['date']." 00:00:00', '%d-%m-%Y %H:%i:%s') AND event = '".$event."'";
-						$result = mysql_query($query) or die(mysql_error());
+						$result = mysql_query($query)  or die(mysql_error());
 							$n = mysql_num_rows($result);
+							//echo "id_daterrrrrrrr";
 							if($n >0){
-									$row = mysql_fetch_assoc($result);
-									$id_date = $row['id'];
-									echo "id_date".$id_date;
-							
-								//добавляем страну в соотношение дата страна
-								$query = "INSERT INTO Date_vs_country  (id_date,id_country) VALUES ('$id_date',	'$id_country')";
-								$result = mysql_query($query);	
-								if($result){ //если вставилось, то добавляем страну в конце
-									echo "<br />вставляем новую страну и тему<br />";
-									$t = "UPDATE Date_Of_Events
-									SET	ids_country = CONCAT_WS('|',ids_country,'".$id_country."') , ids_Theme = CONCAT_WS('|',ids_Theme,'".$id_theme."')
-									WHERE id = '".$id_date."'";
-									//die($eventStr);
-									$result = mysql_query($t);		
-								}else{$id_date=0;}	
+								$row = mysql_fetch_assoc($result);
+								$id_date=0;
+								$id_date = $row['id'];
+								echo "FFFFid_date".$id_date;								
+
+								if($id_date>0){
+								$arrDatess = explode(',', $id_country);
+									for($m=0; $m<count($arrDatess); $m++){
+										if($arrDatess[$m]!=''){
+											//вставяляем соотношение дата страна только
+											echo "<br />id_daterrrrrrrr-".$arrDatess[$m];
+											echo "<br />id_daterrrrrrrr-".$id_date;
+											$query = "INSERT INTO Date_vs_country  (id_date,id_country) VALUES ('$id_date',	'".$arrDatess[$m]."')";
+											$result = mysql_query($query);	
+											echo $query ;
+											echo mysql_error();
+
+											if($result){ //если вставилось, то добавляем страну в конце
+												echo "<br />вставляем новую страну и тему".$id_date."<br />";
+												$t = "UPDATE Date_Of_Events
+												SET	ids_country = CONCAT_WS('|',ids_country,'".$arrDatess[$m]."') , ids_Theme = CONCAT_WS('|',ids_Theme,'".$id_theme."')
+												WHERE id = '".$id_date."'";
+												//die($eventStr);
+												$result = mysql_query($t);
+													echo mysql_error();	
+											}else{
+												//$id_date=0;
+											}
+										}										
+									}
+								}
 								
 							}
 							
 				}else{
 					//вставяляем соотношение дата страна только, что созданной даты
-					$query = "INSERT INTO Date_vs_country  (id_date,id_country) VALUES ('$id_date',	'$id_country')";
-					$result = mysql_query($query);					
+					/*$query = "INSERT INTO Date_vs_country  (id_date,id_country) VALUES ('$id_date',	'$id_country')";
+					$result = mysql_query($query);	*/
+								$arrDatess = explode(',', $id_country);
+								for($m=0; $m<count($arrDatess); $m++){
+									if($arrDatess[$m]!=''){
+										$query = "INSERT INTO Date_vs_country  (id_date,id_country) VALUES ('$id_date',	'".$arrDatess[$m]."')";
+										$result = mysql_query($query);	
+									}
+								}
 				}
+				
+
 				
 				
 				
 				if($id_theme != ''){//добавляем к теме данное событие
 					
-					if($id_date != 0){
+					//if($id_date != 0){
+					if($needAddtoTheme){
 						echo "добавляем к теме";
 						//добавляем 
 						//$eventStr = str_replace("'", "\"", $eventStr);
@@ -875,13 +914,16 @@ var_dump($AllInfoDateArr);
 				
 			}
 
+
+			
 			//	$arrBeg = explode("-",$_POST['DateBeg']); $DateBeg = $arrBeg[2]."-".$arrBeg[1]."-".$arrBeg[0];
 			//	$arrEnd = explode("-",$_POST['DateEnd']); $DateEnd = $arrEnd['2']."-".$arrEnd['1']."-".$arrEnd['0'];
 			//	$whereDate = " AND date BETWEEN STR_TO_DATE('".$DateBeg." 00:00:00', '%Y-%m-%d %H:%i:%s') AND STR_TO_DATE('".$DateEnd." 23:59:59', '%Y-%m-%d %H:%i:%s')";
 			
 
 	}
-	
+
+
 	
 	
 			echo "<table bordercolor='blue' border='1' cellspacing='0' id='table' style='text-align:center;'>";

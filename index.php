@@ -31,7 +31,7 @@ $IsRedactor = 1; //являетсяли пользователь редакто�
 	
 	 echo "Вы Админ продолжаем дальше<br />";	
 	 ?>
-		<a href='AddDates.php' >Добавление дат<a/><br />
+		<br/><br/><br/><br/><br/><br/><a href='AddDates.php' >Добавление дат<a/><br />
 		<a href='blocks/dinamic_scripts/Change_Event.php' >Перепись событий<a/><br />
 		<a href='AddThemaForDates.php' >Добавление тем в группе дат<a/><br />
 		<a href='index.php?bot=yes' >Режим бота<a/><br />
@@ -193,12 +193,24 @@ if(isset($_POST['eraseFilter']) or isset($_GET['eraseFilter'])){
 function EraseSession(){
 	$_SESSION['eventN'] = null;
 	$_SESSION['id_theme'] = null;
-	$_SESSION['Date_b'] = null;
-	$_SESSION['Date_e'] = null;
+	
+	//выставляем один день год вперед
+	$time = new DateTime($_GET['WeekFrom']);
+	//$timeN = $time->format('d-m-Y');
+	$newtime = $time->modify('+1 year')->format('d-m-Y');
+	$_SESSION['Date_b'] = $newtime;
+	$_SESSION['Date_e'] = $newtime;
+	$Date_b = $newtime;	
+	$Date_e = $newtime;
+
+	//$_SESSION['Date_b'] = null;
+	//$_SESSION['Date_e'] = null;
 	$_SESSION['KeyWords'] = null;
 	$_SESSION['included'] = null;
 	$_SESSION['DateNoInTheme'] = null;
 	$_SESSION['onlyNews'] = '0';
+
+
 
 }
 
@@ -312,11 +324,15 @@ if(isset($_POST['KeyWords'])){
 
 if(($Date_b =='') OR ($Date_e =='')){//если время так и не определенно, то выбираем сами
 		$time = new DateTime('now');
+	/*
 		$newtime = $time->modify('-1 year')->format('d-m-Y');
 		
 		$Date_b = $newtime;
 		$Date_e = date("d-m-Y");
-		
+	*/
+	//ставим год вперед, чтобы ничего не показывалось
+		$Date_b =  $time->modify('+1 year')->format('d-m-Y');
+		$Date_e = $Date_b;		
 	//	echo "<br />php Date_b-".$Date_b;
 	//	echo "<br />php Date_e-".$Date_e;
 		
@@ -432,7 +448,9 @@ if(($id_theme!='')){
 		$n = mysql_num_rows($result);
 		if($n >0){
 			$row = mysql_fetch_assoc($result);	
+			$ThemeGlob = $row['Theme'];
 			$titleStr = "Все даты и события по теме: ".$row['Theme'];
+			$textThema = $row['text'];
 			$ids_events = explode("|",$row['ids_events']);
 			if(count($ids_events)>0){
 			$ids_events = array_diff($ids_events, array(''));
@@ -657,10 +675,9 @@ if(($id_theme!='')){
 <html>
 <head>
 	<title><?if($titleStr !=''){ echo $titleStr; }else{ echo "Все важные даты и события мировой истории";}?></title>
+	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
 </head>	
-<body style="position:relative; " >
-
-
+<body style="position:relative; background-image: url(img/background.jpg);  background-size:cover;" >
 <script type="text/javascript" src="js/jquery.js"></script><!-- подключаем -->
 <script type="text/javascript" src="js/mapY.js"></script><!-- подключаем -->
 <script type="text/javascript" src="https://api-maps.yandex.ru/2.1.14/?lang=ru_RU"></script>
@@ -818,8 +835,8 @@ echo "alPiks-".$alPiks."<br>";*/
 	
 <!--	<div id="OuterSpeechFilterForm" style="position:relative;">-->
 		<!--Форма фильтра -->
-		<div id="SpeechFilterForm" style='padding:8px; position:fixed; z-index: 101;'  >
-			
+		<div id="SpeechFilterForm" style='padding:8px; position:fixed; top:-13px; z-index: 101; border-radius: 20px; margin-left:20px; '  >
+			<br />
 
 			<form  method='post' action='index.php' >
 				<input type='hidden' value='1' name='eraseFilter'  />
@@ -829,9 +846,9 @@ echo "alPiks-".$alPiks."<br>";*/
 
 
 
-		<a class='vdiskus' href="index.php?eraseFilter=1" title="Перейти на главную страницу сети новостей России и всего мира"><< Главная страница</a> |
+		&nbsp;&nbsp;<a class='vdiskus' href="index.php?eraseFilter=1" title="Перейти на главную страницу сети новостей России и всего мира"><< Главная страница</a> |
 		<a class='vdiskus' href="ShowDate.php?EvBy10" title="события" > Список событий и дат </a> |
-		<a class='vdiskus' href="ShowNews.php" title="новости" > Список новостей </a>			
+		<a class='vdiskus' href="ShowNews.php" title="новости" > Список новостей </a>&nbsp;&nbsp;		
 
 
 			<div id="innerForm" style="display:none;">
@@ -904,22 +921,37 @@ echo "alPiks-".$alPiks."<br>";*/
 
 
 	<!--</div>-->
-	<br /><br />
+	<br /><br /><br />
 	
 	<script>//работа по выплыванию формы
+	
 	$(document).ready(function() {
-		$('#SpeechFilterForm').mouseenter(function(){
-			$('#innerForm').show(700)
-			$('.toHideFilterForm').hide(700)
+		var needHide = false;
+
+
+		
+			$('#SpeechFilterForm').mouseenter(function(){
+				needHide = false;
+				$('#innerForm').show(700)
+				$('.toHideFilterForm').hide(700)
+
+
+
 		 		 //alert('enter');
 		})
-	});
-	$(document).ready(function() {
 		$('#SpeechFilterForm').mouseleave(function(){
 		 		 //alert('leave');
-		 		 $('#innerForm').hide(700)
-		 		 $('.toHideFilterForm').show(700)
-		})
+		 	needHide = true;	 
+			setTimeout(function(){  
+			 	if(needHide){	 
+			 		 $('#innerForm').hide(700)
+			 		 $('.toHideFilterForm').show(700)
+			 	}
+			},2000)
+
+		})	
+
+
 	});
 	</script>
 
@@ -1304,55 +1336,62 @@ echo "alPiks-".$alPiks."<br>";*/
 		
         
         <?	if($arrEv !=null){?>
-            <br/><b>По заданым критериям найдены следующие события/даты</b>
+            <br/>
+            <?if(isset($_GET['id_theme'])){?>
+            <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?=$ThemeGlob?></h3>
+            <?}else{?>	
+            	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>По заданым критериям найдены следующие события/даты</b>
+            <?}?>
         <?}?>
 		
-        <div style="border:3px solid green;  position:relative;">
-				<!-- шкала -->
-				<!--<div style="z-index:100; position:fixed; top:100px; margin-left: 3%;" title='Маштаб'>-->
-				<div style="z-index:100; position:absolute; top:-5px; margin-left: 2%;" title='Маштаб'>
-					<br />
-					<? 
-						
-						$sledScalePl = $scale*2;  
-						 //echo $sledScalePl;
-						$sledScalePl=str_replace(',','.',$sledScalePl); 
-						// echo $sledScalePl;
-						//echo $scale;
-					?>
-					<div style='border:3px solid orange; margin-bottom:5px; color:orange; font-size:35px; cursor:pointer;' >
-							<span onclick="ChangeScale('+')" style='font-weight:bold; text-decoration:none; color:orange;' >&nbsp;+&nbsp;</span>
+		<?if(count($arrEv)>0){?>
+	        <div style="padding:7px; border:5px solid green;  position:relative; border-radius: 15px; margin-left:20px; margin-right:20px;  ">
+					<!-- шкала -->
+					<!--<div style="z-index:100; position:fixed; top:100px; margin-left: 3%;" title='Маштаб'>-->
+					<div style="z-index:100; position:absolute; top:-5px; margin-left: 2%;" title='Маштаб'>
+						<br />
+						<? 
+							
+							$sledScalePl = $scale*2;  
+							 //echo $sledScalePl;
+							$sledScalePl=str_replace(',','.',$sledScalePl); 
+							// echo $sledScalePl;
+							//echo $scale;
+						?>
+						<div style='border:3px solid purple; margin-bottom:5px; color:purple; font-size:35px; cursor:pointer;' >
+								<span onclick="ChangeScale('+')" style='font-weight:bold; text-decoration:none; color:purple;' >&nbsp;+&nbsp;</span>
+						</div>
+						<? 
+							if($scale <= 1){
+								$sledScaleMin = $scale/2;
+							}else{
+								$sledScaleMin = ceil($scale/2); 
+							}
+							$sledScaleMin=str_replace(',','.',$sledScaleMin); 
+							
+						?>
+						<div style='border:3px solid purple; color:purple; font-size:35px; cursor:pointer;'><?/*<a href='index.php?scale=<?=$sledScaleMin?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;&ndash;&nbsp;</a>*/?>
+							<span onclick="ChangeScale('-')" style='font-weight:bold; text-decoration:none; color:purple;' >&nbsp;-&nbsp;</span>
+						</div>
 					</div>
-					<? 
-						if($scale <= 1){
-							$sledScaleMin = $scale/2;
-						}else{
-							$sledScaleMin = ceil($scale/2); 
-						}
-						$sledScaleMin=str_replace(',','.',$sledScaleMin); 
-						
-					?>
-					<div style='border:3px solid orange; color:orange; font-size:35px; cursor:pointer;'><?/*<a href='index.php?scale=<?=$sledScaleMin?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;&ndash;&nbsp;</a>*/?>
-						<span onclick="ChangeScale('-')" style='font-weight:bold; text-decoration:none; color:orange;' >&nbsp;-&nbsp;</span>
-					</div>
-				</div>
-		
-		<div style="position:relative; overflow:auto;" id="div_svg">
+			
+			<div style="position:relative; overflow:auto;" id="div_svg">
 
 
-			<svg id="svg_table" version="1.1" width="20" height="20" 
-				<!--viewBox="0 0 1280 1024" baseProfile="full" -->
-				xmlns="http://www.w3.org/2000/svg" 
-				xmlns:xlink="http://www.w3.org/1999/xlink" 
-				xmlns:ev="http://www.w3.org/2001/xml-events">
-						<!--  <text x="10" y="50" font-size="30">My SVG</text>
-						  <rect x="30" y="50" width="120" height="50" style="fill-opacity: 0.7; fill: red;"></rect>
-						  
-						<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
-						<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
-			</svg>	
+				<svg id="svg_table" version="1.1" width="20" height="20" 
+					<!--viewBox="0 0 1280 1024" baseProfile="full" -->
+					xmlns="http://www.w3.org/2000/svg" 
+					xmlns:xlink="http://www.w3.org/1999/xlink" 
+					xmlns:ev="http://www.w3.org/2001/xml-events">
+							<!--  <text x="10" y="50" font-size="30">My SVG</text>
+							  <rect x="30" y="50" width="120" height="50" style="fill-opacity: 0.7; fill: red;"></rect>
+							  
+							<rect x="30" y="140" width="120" height="50" style="fill:yellow; stroke-width:3; stroke: blue;"></rect>
+							<rect height="100" style="fill: blue;" x="20" y="30" width="100"></rect><line x1="70" y1="40" x2="70" y2="540" fill="green" stroke="#006600"></line><line x1="120" y1="40" x2="120" y2="540" fill="green" stroke="#006600"></line>-->
+				</svg>	
+			</div>
 		</div>
-	</div>		
+	<?}?>		
 		<script>
 			function showk(){
 				if($('#allias').css('display')=='none'){
@@ -1411,9 +1450,16 @@ echo "alPiks-".$alPiks."<br>";*/
 			</div>
 		<?}?>
 		<div  id="map-menu" style='position:relative;'  ></div>
+			<div id="divForNext" style='position:relative; display:block;'>
+					<div id="divPrev" style='cursor:pointer; display:none; position:absolute; z-index:100; background-color:green; text-align:center; font-size:48px; opacity:0.7; font-weight:bold; color:red; padding:10px;'>&#9664;</div><div style='cursor:pointer; display:none; position:absolute; z-index:100; background-color:green; text-align:center; font-size:48px; opacity:0.7; font-weight:bold; color:red; padding:10px;  ' id="divNext">&#9654;</div>
+			</div>		
 		<? if($IsRedactor){ ?>
+
 			<div id="map-helper" style='position:relative; display:none;'></div>
 		<?}?>
+
+
+
 		<? 
 		$MapWeidth = 900;
 		$MapHeight = 500;
@@ -1425,9 +1471,15 @@ echo "alPiks-".$alPiks."<br>";*/
 		}
 		?>
 
-		<div  id="map-canvas" style="width:<?=$MapWeidth?>px; height:<?=$MapHeight?>px; display:none;" width="300" height="300" ></div>
+		<!--<div id='divForNext' style="position:relative;">
+			<div style="position:abso;">next11111<><><>
+			</div>	
+		</div>-->
+		<div  id="map-canvas" style="width:<?=$MapWeidth?>px; height:<?=$MapHeight?>px; display:none; border:5px solid green; border-radius: 15px; margin: 10px 20px 0 20px;" width="600" height="600" ></div>
 		
+
 		<? if($_SESSION['Guest_id']['id_user'] == $AdminID){ ?>
+			<br />koord<input type="text" id="koordOnClick">
             <button type="button" id="ShowM" onclick="ShowMap(null);" >Рисовать на карте</button>
         <?}?>
 
@@ -1746,80 +1798,226 @@ echo "alPiks-".$alPiks."<br>";*/
 			
 		}		
 		?>
+
+		
+
+		<script type="text/javascript">
+			$(document).ready(function() { 
+					//alert($('#DateTable').css("width"));
+					$('#mapList').css("width",$('#DateTable').css("width"))
+
+			});
+
+
+		</script>
+
+
+		<? 
+		//пробегаемся по событиям и находим с картами
+		$arrMap = Array();
+		$arrOtm = Array();
+		for($i=0; $i<count($arrEv); $i++ ){			
+			if(!$arrEv[$i]['map_objects']){
+				$arrEv[$i]['id_obsh'] = $i;
+				if($arrEv[$i]['mapPict'] !=''){
+					$arrMap[]=$arrEv[$i];
+
+				}else{
+					$arrOtm[]=$arrEv[$i];
+				}
+			}
+		}
+/*
+		echo "arrMap<br />";
+		var_dump($arrMap);
+		echo "<br /><br />arrOtm<br />";
+		var_dump($arrOtm);*/
+
+
+
+		?>
+
+		
+		<script type="text/javascript">
+			//заносим их в js мвссив
+			var arrEvMap = JSON.parse('<?=json_encode($arrMap)?>');	
+			var arrEvOtm = JSON.parse('<?=json_encode($arrOtm)?>');
+			//выделяем следующий элемент в массиве карт и долее передаем аргументы в функцию показа карты
+			function PreShowOnGraph(id){
+				//alert(id);
+				if(map == 1){
+					alert('map')
+
+				}else if(map == 2){
+					alert('marks')
+
+				}
+
+				var have = false;
+				var next = null;
+				var prev = null;
+
+				//пробегаемя по массивам карт и отметок и если есть, то показываем стрелки
+				have = true;
+				for(var i=0; i<arrEvMap.length; i++){
+					if(arrEvMap[i]['id'] ==id ){
+						
+						if(typeof(arrEvMap[i-1]) != "undefined"){
+							$('#divPrev').css('display','block')
+							$('#divPrev').attr('title',arrEvMap[i-1]['event']);
+							(function(n){ $('#divPrev').click(function() { ShowOnGraph(arrEvMap[n-1]['id'], arrEvMap[n-1]['id_obsh']);} ) })(i)
+						}
+						if(typeof(arrEvMap[i+1]) != "undefined"){
+							$('#divNext').css('display','block')
+							$('#divNext').attr('title',arrEvMap[i+1]['event']);
+							(function(n){ $('#divNext').click(function() { ShowOnGraph(arrEvMap[n+1]['id'], arrEvMap[n+1]['id_obsh']);} ) })(i)
+						}
+					}
+
+
+				}
+				for(var i=0; i<arrEvOtm.length; i++){
+					if(arrEvOtm[i]['id'] ==id ){
+						have = true;
+						if(typeof(arrEvOtm[i-1]) != "undefined"){
+							$('#divPrev').css('display','block')
+							$('#divPrev').attr('title',arrEvOtm[i-1]['event']);
+							(function(n){ $('#divPrev').click(function() { ShowOnGraph(arrEvOtm[n-1]['id'], arrEvOtm[n-1]['id_obsh']);} ) })(i)
+						}
+						if(typeof(arrEvOtm[i+1]) != "undefined"){
+							$('#divNext').css('display','block')
+							$('#divNext').attr('title',arrEvOtm[i+1]['event']);
+							(function(n){ $('#divNext').click(function() { ShowOnGraph(arrEvOtm[n+1]['id'], arrEvOtm[n+1]['id_obsh']);} ) })(i)
+						}
+					}
+				}				
+
+				//отрисовка кнопок next prev
+				if(have){
+					var map = $('#map-canvas')
+					var NextCont = $('#divForNext')
+					NextCont.width(map.width()+'px');
+					NextCont.height('40px');
+					NextCont.css('top',map.height()-80)
+					NextCont.css('left',map.width()/2)
+					$('#divNext').css('left',100)
+				}
+
+			}
+
+		</script>
+
+		
+
 		<div style="position:relative;">
+			
+			<?if(count($arrMap)>0 or count($arrOtm)>0){?>
+				<div id="mapList" style="z-index:100;    position:absolute; top:-10px; left:30px;border:2px solid green;background:#fff; border-radius: 5px; ">
+					<?if(count($arrMap)>0){?>
+						<div style="float:left"><b>Карты&nbsp;</b></div>
+						<div style="overflow:auto;">
+							<div style="white-space: nowrap;">	
+								<?for($i=0; $i<count($arrMap); $i++ ){
+									echo "<img class='imgMap' id='imgMap-".$arrMap[$i]['id']."' style='cursor:pointer; margin:1px; height:27px; border-right:1px solid green;' title='".$arrMap[$i]['titl_nE']."' src='MapPictureSmal/".$arrMap[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrMap[$i]['id'].",".$arrMap[$i]['id_obsh'].")' />";
+								}?>
+							</div>
+						</div>
+					<?}?>
+					<?if(count($arrOtm)>0){?>
+						<div style="float:left"><b>Отметки&nbsp;</b></div>
+						<div style="overflow:auto;">
+							<div style="white-space: nowrap;">	
+								<?for($i=0; $i<count($arrOtm); $i++ ){
+									echo "<img class='imgMap' id='imgMap-".$arrOtm[$i]['id']."' style='cursor:pointer; margin:1px; height:27px;' title='".$arrOtm[$i]['titl_nE']."'' src='MapPictureSmal/mapvector1.jpg'  onclick='ShowOnGraph(".$arrOtm[$i]['id'].",".$arrOtm[$i]['id_obsh'].")' />";
+								}?>
+							</div>
+						</div>
+					<?}?>
+				</div>
+			<?}?>
+
+
 				<!--<div style="z-index:100; position:absolute; top:-5px; margin-left: 2%;" title='Маштаб'>-->
-					<div title="растянуть/сжать" style='top:7px; margin-left: 2%; z-index:100; position:absolute; border:3px solid orange; margin-bottom:5px; color:orange; font-size:35px; cursor:pointer;' >
-							<span onclick="ChangeDateTableSize()" style='font-weight:bold; text-decoration:none; color:orange;' >&nbsp;↕&nbsp;</span>
+					<div title="растянуть/сжать" style='top:60px; margin-left: 4%; z-index:100; position:absolute; border:3px solid purple; margin-bottom:5px; color:purple; font-size:35px; cursor:pointer;' >
+							<span onclick="ChangeDateTableSize()" style='font-weight:bold; text-decoration:none; color:purple;' >&nbsp;↕&nbsp;</span>
 					</div>
 
-			<div id="DateTable" style="border:3px solid green; overflow:auto;" class="<?=$DateTableClass?>">
-			<table  border='0'  cellspacing='0'   ><!--style='text-align:center;'-->
-			<?
-			
-			for($i=0; $i<count($arrEv); $i++ ){		?>
-				<!--<div id='<?=$arrEv[$i]['Url_ins']?>-DivNews' ><a href='index.php?c=soobsh&id_soobsh=<?=$arrEv[$i]['Url_ins']?>' title='<?=$titl_nT?>' ><?=$titl_nE?> :  <?=$dat[0]?></a></div>-->
-				<tr <?if($i%2==0){?> style="background-color:#eee"<?}?>  >
-					<?if($arrEv[$i]['dateE1'] != ''){ $title='Дата начала события';}else{ $title='Дата события';}?>
-					<td   style='text-align:right; padding:3px;' title='<?=$title?>' >
-						<?=$arrEv[$i]['dateB1']?>
-					</td>
-					
-					
-					<td style='text-align:right; padding:3px; position:relative; border-right:2px solid #999;'  <?if($arrEv[$i]['dateE1'] != ''){ echo " title='Дата окончания события' ";}?>  >
-						<?=$arrEv[$i]['dateE1']?> 
-					</td>	
-					<td style=' padding:0px; margin:0px;'  >
-							   <div style='position:relative;' >
-							   <? if(!$arrEv[$i]['map_objects']){ 
+			<?if(count($arrEv)>0){?>
+				<div id="DateTable" style="background:#fff; padding:7px; border:5px solid green; overflow:auto; border-radius: 15px; margin: 10px 20px 0 20px;" class="<?=$DateTableClass?>">
+				
+					<?if(count($arrMap)>0){?> <br/><br/> <?}?>
+					<?if(count($arrOtm)>0){?> <br/><br/> <?}?>
 
+				<table  border='0'  cellspacing='0'   ><!--style='text-align:center;'-->
+				<?
+				
+				for($i=0; $i<count($arrEv); $i++ ){		?>
+					<!--<div id='<?=$arrEv[$i]['Url_ins']?>-DivNews' ><a href='index.php?c=soobsh&id_soobsh=<?=$arrEv[$i]['Url_ins']?>' title='<?=$titl_nT?>' ><?=$titl_nE?> :  <?=$dat[0]?></a></div>-->
+					<tr <?if($i%2==0){?> style="background-color:#eee"<?}?>  >
+						<?if($arrEv[$i]['dateE1'] != ''){ $title='Дата начала события';}else{ $title='Дата события';}?>
+						<td   style='text-align:right; padding:3px;' title='<?=$title?>' >
+							<?=$arrEv[$i]['dateB1']?>
+						</td>
+						
+						
+						<td style='text-align:right; padding:3px; position:relative; border-right:2px solid #999;'  <?if($arrEv[$i]['dateE1'] != ''){ echo " title='Дата окончания события' ";}?>  >
+							<?=$arrEv[$i]['dateE1']?> 
+						</td>	
+						<td style=' padding:0px; margin:0px;'  >
+								   <div style='position:relative;' >
+								   <? if(!$arrEv[$i]['map_objects']){ 
+
+									   if($arrEv[$i]['mapPict'] !=''){ 
+											//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
+											echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
+											echo "<b style='cursor:pointer; color:red; position:absolute; top:-7px; left:-18px;' onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' >карта</b>";
+									   }else{
+											echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/mapvector1.jpg'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
+									   }
+									   
+								   }?>
+									</div>						   
+						</td>
+						<td style='text-align:left; padding:3px;' >
+						<!--* <a href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' ><?=$date?> : <?=$arrEv[$i]['titl_nE']?></a>-->
+						<? if(count($arrEv[$i]['country'])>1){ echo "<b style='color:red'>".count($arrEv[$i]['country'])."</b>";}?><select  name='co' title='страны связанные с событиями/датами' >
+							<?foreach($arrEv[$i]['country'] as $ke=>$co){?>
+							<option value='<?=$ke?>' ><?=$co?></option>
+						<?}?>
+						</select>
+						<b title='категория события' style=' color:green; font-size:10px; '><?=$CategoryArr[$arrEv[$i]['category']]?></b>
+						<?//var_dump($arrEv[$i]['country']);?>
+						
+						<span style='cursor:pointer;' id='date_tr_<?=$arrEv[$i]['id']?>' class='date_tr_cl' onclick="ShowOnGraph(<?=$arrEv[$i]['id']?>,<?=$i?>)"><?=$arrEv[$i]['titl_nE']?></span> <a title="посмотреть информацию о событии" href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' >-- > посмотреть</a>
+						<?if($_SESSION['Guest_id']['id_user'] == $AdminID){ //если админ (выводим меню)?>
+							|||<a href="EditDate.php?DelDate=<?=$arrEv[$i]['id']?>" target="blank" >удалить Дату </a> ||| <a href="EditDate.php?EditDate=<?=$arrEv[$i]['id']?>" target="blank" >редактировать Дату </a>
+						<b onclick='ShowAdminMenu(this,event)' id='Dt-<?=$arrEv[$i]['id']?>' idd='country-<?=$arrEv[$i]['ids_country']?>+elsevar-?' >RED</b>
+						<?}?>
+		                <?
+		                   /* if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange; position:relative;'>map";
+		                       // mapPict
+							   //echo $arrEv[$i]['mapPict'];
 								   if($arrEv[$i]['mapPict'] !=''){ 
 										//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
-										echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
-										echo "<b style='cursor:pointer; color:red; position:absolute; top:-7px; left:-18px;' onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' >карта</b>";
-								   }else{
-										echo "<img style='cursor:pointer; margin:0px; height:27px;' title='показать карту' src='MapPictureSmal/mapvector1.jpg'  onclick='ShowOnGraph(".$arrEv[$i]['id'].",".$i.")' />";
+										echo "<img style='cursor:pointer;  position:absolute; top:-18px; left:15px;' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
 								   }
-								   
-							   }?>
-								</div>						   
-					</td>
-					<td style='text-align:left; padding:3px;' >
-					<!--* <a href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' ><?=$date?> : <?=$arrEv[$i]['titl_nE']?></a>-->
-					<? if(count($arrEv[$i]['country'])>1){ echo "<b style='color:red'>".count($arrEv[$i]['country'])."</b>";}?><select  name='co' title='страны связанные с событиями/датами' >
-						<?foreach($arrEv[$i]['country'] as $ke=>$co){?>
-						<option value='<?=$ke?>' ><?=$co?></option>
-					<?}?>
-					</select>
-					<b title='категория события' style=' color:green; font-size:10px; '><?=$CategoryArr[$arrEv[$i]['category']]?></b>
-					<?//var_dump($arrEv[$i]['country']);?>
-					
-					<span style='cursor:pointer;' id='date_tr_<?=$arrEv[$i]['id']?>' class='date_tr_cl' onclick="ShowOnGraph(<?=$arrEv[$i]['id']?>,<?=$i?>)"><?=$arrEv[$i]['titl_nE']?></span> <a title="посмотреть информацию о событии" href='ShowDate.php?id_date=<?=$arrEv[$i]['id']?>' target='blank' >-- > посмотреть</a>
-					<?if($_SESSION['Guest_id']['id_user'] == $AdminID){ //если админ (выводим меню)?>
-						|||<a href="EditDate.php?DelDate=<?=$arrEv[$i]['id']?>" target="blank" >удалить Дату </a> ||| <a href="EditDate.php?EditDate=<?=$arrEv[$i]['id']?>" target="blank" >редактировать Дату </a>
-					<b onclick='ShowAdminMenu(this,event)' id='Dt-<?=$arrEv[$i]['id']?>' idd='country-<?=$arrEv[$i]['ids_country']?>+elsevar-?' >RED</b>
-					<?}?>
-	                <?
-	                   /* if(!$arrEv[$i]['map_objects']){ echo "<b style='color:orange; position:relative;'>map";
-	                       // mapPict
-						   //echo $arrEv[$i]['mapPict'];
-							   if($arrEv[$i]['mapPict'] !=''){ 
-									//echo "<b style='color:red; position:absolute; top:-5px; left-15px;'>mapIn</b>";
-									echo "<img style='cursor:pointer;  position:absolute; top:-18px; left:15px;' src='MapPictureSmal/".$arrEv[$i]['mapPict']."'  onclick='ShowOnGraph(".$arrEv[$i]['id'].")' />";
-							   }
-						   echo "</b>";
-	                    }*/
-	                ?>
-					</td>
-				</tr>
-					
+							   echo "</b>";
+		                    }*/
+		                ?>
+						</td>
+					</tr>
+						
+				<?}?>
+				</table>
+				</div>
 			<?}?>
-			</table>
-			</div>
 		</div>
 	
-	<?	//	}
-	?>
-	
+	<?if(isset($textThema)){?>
+		<div id="DateTable" style="padding:7px; border:5px solid green; overflow:auto; border-radius: 15px; margin: 10px 20px 20px 20px;" >
+			<?=$textThema?>
+		</div>
+	<?}?>
 	
 	<script>//работа с меню карты
 		
@@ -2666,6 +2864,8 @@ function toTime(date){
 
 function AddEventToSvg(event,line){
 		var DateB = DateToPixel(event['date_Beg'])
+
+
 	
 	if(event['date_End']=='0000-00-00 00:00:00'){
 		var DateE = DateB+2;
@@ -2723,14 +2923,30 @@ function AddEventToSvg(event,line){
 	
 	ArrEvent.push(r);
 
+//console.log("--------------event1-----------------");
+//console.log(event['date_Beg'].split(" ")[0] +"   --- " +event['date_End'].split(" ")[0]);
+var arrDb = event['date_Beg'].split(" ")[0].split("-");
+var arrDe = event['date_End'].split(" ")[0].split("-");
+var Datee = (arrDb[2]!="00"?arrDb[2]+".":"") + (arrDb[1]!="00"?arrDb[1]+".":"")+(arrDb[0]!="0000"?arrDb[0]:"")+(event['date_End'].split(" ")[0]=="0000-00-00"?"":"-")+(arrDe[2]!="00"?arrDe[2]+".":"") + (arrDe[1]!="00"?arrDe[1]+".":"")+(arrDe[0]!="0000"?arrDe[0]:"")+" | " ;//
+//console.log(Datee);
 	//выводим окно события
 	(function(arrText){
 		//r.onclick = function(){alert(text)}
 		//r.addEventListener("mouseover",function(){alert(text)}) ;
 		//r.addEventListener("mouseover",function(e){showEvent(e,arrText,id);} );
 		r.addEventListener("mouseover",function(e){ 
+				//убираем выделения
+				for (var i = 0; i < ArrEvent.length; i++) {
+					ArrEvent[i].style.fill='blue';
+				}
+				//выделяем наш элемент
+				this.style['border'] = '2px solid red';
+				this.style.fill='red';
+
+
+
 			console.log("addEventListener");
-			showEvent(e,arrText,event['id'],r);} 
+			showEvent(e,arrText,event['id'],r,Datee);} 
 		);
 	})(event['arrDates']);
 	svg.appendChild(r);
@@ -2746,7 +2962,7 @@ function AddEventToSvg(event,line){
 	
 //выводим временную рамку с текстом события	
 //function showEvent(event,text,id){
-function showEvent(event,arrText,id,th){
+function showEvent(event,arrText,id,th,Datee){
 	
 	console.log("showEvent")
 	//- $("#div_svg").offset().top
@@ -2769,8 +2985,8 @@ function showEvent(event,arrText,id,th){
 			//console.log(th)
 			//console.log("scrollLeft-"+$("#div_svg").scrollLeft()) 
 		//	console.log($(th).offset().left - $("#div_svg").offset().top);
-			coord.pageX = $(th).offset().left  + $("#div_svg").scrollLeft()
-			coord.pageY=  ($(th).offset().top - $("#div_svg").offset().top)
+			coord.pageX = $(th).offset().left - $("#div_svg").offset().left  + $("#div_svg").scrollLeft()
+			coord.pageY=  ($(th).offset().top - $("#div_svg").offset().top+7)
 	
 		//console.log("$(th).offset().left-"+$(th).offset().left);
 		//console.log("$(#div_svg).offset().top-"+ $("#div_svg").offset().top+"$(th).offset().top-"+ $(th).offset().top) 
@@ -2786,7 +3002,7 @@ function showEvent(event,arrText,id,th){
 			text1 = '';
 			var classname = ''
 			for (var i = 0; i < arrText.length; i++) {
-				text1+="<span onclick='goEvent("+arrText[i][0]+")' style='cursor:pointer; text-decoration:underline; color:blue;'>показать...</span><br />"+arrText[i][1]+"<br />"
+				text1+="<span onclick='goEvent("+arrText[i][0]+")' style='cursor:pointer; text-decoration:underline; color:blue;'>показать...</span><br />"+Datee+arrText[i][1]+"<br />"
 				
 				classname += ' ev_lab_'+ arrText[i][0];
 			}
@@ -2867,10 +3083,12 @@ function goEvent(id){
 			//alert("DateTable")
 			
 
+			
 			$("html,body").animate({scrollTop: $(elll).offset().top-200,
 				scrollLeft: $(elll).offset().left-300
 			}, 500);
 
+			$("body #DateTable").animate({scrollTop:0,scrollLeft:0},0);
 			$("body #DateTable").animate({scrollTop: $(elll).offset().top-$("#DateTable").offset().top,
 				scrollLeft: $(elll).offset().left-300
 			}, 500);			
@@ -2945,6 +3163,18 @@ function hide(obj){
 //при клике на таблице показываем событие в графике
 function ShowOnGraph(id,n){
 	
+	//убираем стрелки след карты
+	$('#divNext').css('display','none')
+	$('#divPrev').css('display','none')
+
+	PreShowOnGraph(id)
+
+	//у всех карт убираем рамку и добавляем только выбранной
+	$('.imgMap').removeClass('imgMapIlum');
+	$('#imgMap-'+id).addClass('imgMapIlum');
+	//imgMapIlum
+	
+	
 	CurrentEnentNum = id;
 	//ShowMap(CurrentEnentNum);
 	//getElementsByC.style.fill='blue';
@@ -2972,6 +3202,7 @@ function ShowOnGraph(id,n){
 		elll.style['border'] = '2px solid red';
 		elll.style.fill='red';
 //				$("html,body").animate({scrollTop: $(elll).offset().top-200,
+			$("html,body").animate({scrollTop: $("html,body #div_svg").offset().top ,scrollLeft:0},300);
 			$("html,body #div_svg").animate({scrollTop: 0,scrollLeft:0},0);
 		
 		//console.log("ShowOnGraph  scrollTop"+$(elll).offset().top-200 + " -scrollLeft- " +$(elll).offset().left-300)
@@ -2990,8 +3221,16 @@ console.log($(elll).offset().top-200);
 				
 				console.log($("#div_svg"));
 
+				console.log("--------------event1-----------------");
+				console.log(arrEv[n]);
+				console.log(arrEv[n]['date_Beg'].split(" ")[0] +"   --- " +arrEv[n]['date_End'].split(" ")[0]);
+				var arrDb = arrEv[n]['date_Beg'].split(" ")[0].split("-");
+				var arrDe = arrEv[n]['date_End'].split(" ")[0].split("-");
+				var Datee = (arrDb[2]!="00"?arrDb[2]+".":"") + (arrDb[1]!="00"?arrDb[1]+".":"")+(arrDb[0]!="0000"?arrDb[0]:"")+(arrEv[n]['date_End'].split(" ")[0]=="0000-00-00"?"":"-")+(arrDe[2]!="00"?arrDe[2]+".":"") + (arrDe[1]!="00"?arrDe[1]+".":"")+(arrDe[0]!="0000"?arrDe[0]:"")+" | " ;//
+				console.log(Datee);
+
 				//console.log(arrEv);
-				showEvent(null,[[id,arrEv[n]['event']]],id,elll)
+				showEvent(null,[[id,arrEv[n]['event']]],id,elll,Datee)
 				//setTimeout(function(){$('#'+idN).mouseover();},2000);
 				
 				/*ent.pageX+"px";
@@ -3067,7 +3306,7 @@ console.log($(elll).offset().top-200);
 	
 	
 	
-	<?	if($arrEv ==null){ echo "<br /><b style='color:red;'>Ничего не найдено. Измените параметры фильтра.</b><br />"; 
+	<?	if($arrEv ==null){ echo "<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b style='color:red;'>Ничего не найдено. Измените параметры фильтра.</b><br />"; 
         //выводим темы с картинками (по приоритету/или по джате создания)
         //print_r($arrTheme);
         	//вытаскиваем все темы новостей (если в дальнейшем будет висеть, то сделать при клике на ссылку)
@@ -3094,17 +3333,23 @@ console.log($(elll).offset().top-200);
             
             if(count($arrTh)>0){
             ?>
-                <h3>Последние темы</h3>
+            <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Последние темы</h3>
+            <div style="padding:7px; border:5px solid green; overflow:auto; border-radius: 15px; margin: 10px 20px 20px 20px;" >    
                 <ul class="foto_albom foto50Text">
 						<? foreach ($arrTh as $theme):?>
 							<li>
 								 <!--width="10px" height="10px"-->
-								 <span style="cursor:pointer;" title="<?=$theme['Theme']?>" onclick="GotoTheme('th-<?=$theme['id']?>')"><div class="foto_50" style="overflow:hidden;"><img style="width:250px;"  src="img/themes/<?=$theme['img']?>" /></div><br />
-								 <?=$theme['Theme']?></span>
+								 <!--<span style="cursor:pointer;" title="<?=$theme['Theme']?>" onclick="GotoTheme('th-<?=$theme['id']?>')">-->
+								 <a href='index.php?id_theme=<?=$theme['id']?>' title='<?=$theme['Theme']?>' >	
+								 	<div class="foto_50" style="border-radius: 15px; overflow:hidden;"><img style="width:250px;"  src="img/themes/<?=$theme['img']?>" /></div><br />
+								 	<?=$theme['Theme']?>
+								 </a>
+								 <!--</span>-->
 							</li>	
 						<?	endforeach; ?>
 
-                 </ul>        
+                 </ul>
+             </div>        
             <script>
 				function GotoTheme(th_id){
 					location.href = 'index.php?id_theme='+th_id.split('-')[1];
