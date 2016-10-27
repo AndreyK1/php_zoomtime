@@ -90,3 +90,11 @@ html, body, #mapYa {
 .imgMapIlum{
 	border:3px solid blue;
 }
+
+.rotatable{
+	-webkit-transform: rotate(-90deg); //Chrome, Safari
+	-moz-transform: rotate(-90deg); //Firefox
+	-o-transform: rotate(-90deg); //Opera
+	-ms-transform: rotate(-90deg); //IE
+	transform: rotate(-90deg); //браузеры без префексов
+}

@@ -32,6 +32,7 @@ $IsRedactor = 1; //являетсяли пользователь редакто�
 	 echo "Вы Админ продолжаем дальше<br />";	
 	 ?>
 		<br/><br/><br/><br/><br/><br/><a href='AddDates.php' >Добавление дат<a/><br />
+		<a href='AddRulers.php' >Добавление правителей<a/><br />
 		<a href='blocks/dinamic_scripts/Change_Event.php' >Перепись событий<a/><br />
 		<a href='AddThemaForDates.php' >Добавление тем в группе дат<a/><br />
 		<a href='index.php?bot=yes' >Режим бота<a/><br />
@@ -678,13 +679,18 @@ if(($id_theme!='')){
 	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
 </head>	
 <body style="position:relative; background-image: url(img/background.jpg);  background-size:cover;" >
+
 <script type="text/javascript" src="js/jquery.js"></script><!-- подключаем -->
 <script type="text/javascript" src="js/mapY.js"></script><!-- подключаем -->
 <script type="text/javascript" src="https://api-maps.yandex.ru/2.1.14/?lang=ru_RU"></script>
 <link rel="stylesheet" type="text/css" href="css/style.css"  />
 
 <script type="text/javascript" src="blocks/dinamic_scripts/CreateElementOnScreen.js"></script><!--подключаем для создания плавающих окон -->	
+
+<? include_once('rulers_map.php');?>
 <script>
+
+
 
 //при сочетании клавишь и выделенном тексте - создаем событие-дату в базе
 document.addEventListener('keydown', function(event){//обработка сочетания клавишь
