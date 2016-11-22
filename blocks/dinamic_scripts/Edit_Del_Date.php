@@ -31,6 +31,7 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 		//редактируем запись
 			$dateBeg =  mysql_real_escape_string($_POST['dateBeg']);	
 			$dateEnd =  mysql_real_escape_string($_POST['dateEnd']);	
+			$bc_ac  =  mysql_real_escape_string($_POST['bc_ac']);
 	
 			
 			$event = str_replace(array("\r\n", "\r", "\n"), '', $_POST['event']); 
@@ -67,7 +68,7 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 */
 
 				$t = "UPDATE Date_Of_Events
-				SET	date_Beg = '".$dateBeg."', date_End = '".$dateEnd."', event= '".$event."'  WHERE id = '".$id."' " ;
+				SET	date_Beg = '".$dateBeg."', date_End = '".$dateEnd."', event= '".$event."', bс_ac='".$bc_ac."'  WHERE id = '".$id."' " ;
 				//die($eventStr);
 				echo $t;
 				$result = mysql_query($t);

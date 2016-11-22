@@ -340,6 +340,8 @@ if(($Date_b =='') OR ($Date_e =='')){//если время так и не опр
 }
 
 
+//все страны относяшиеся к теме
+$allCountryInTheme = array();
 
 	$whereDate = '';
 	if(($Date_b !='') AND ($Date_e !='')){
@@ -493,7 +495,7 @@ if(($id_theme!='')){
 
 			
 			//вытаскиваем сами даты
-			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE id in (".$strTh.") ORDER BY date_Beg"  ;
+			$query = "SELECT id, date_Beg, date_End,bс_ac, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE id in (".$strTh.") ORDER BY bс_ac DESC,date_Beg"  ;
             //ISNULL(NULLIF(fieldname,''))  0 - если есть координаты,  1 - если пусто
 
 			
@@ -501,12 +503,12 @@ if(($id_theme!='')){
 		
 		}else{
 			echo "<br />Нет Событий в этой теме!!!<br />";
-			$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
+			$query = "SELECT id, date_Beg, date_End,bс_ac, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY bс_ac DESC,date_Beg"  ;
 		}
 
 }else{
 	//вытаскиваем все события
-	$query = "SELECT id, date_Beg, date_End, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY date_Beg"  ;
+	$query = "SELECT id, date_Beg, date_End,bс_ac, $eventNeed, ids_Theme, date_of_add, ids_country, category, ISNULL(NULLIF(map_objects,'')) as map_objects, mapPict  FROM  $WhereSearch WHERE '1'='1' ".$whereDate." ".$whereKeyWords." ".$whereIdIn." ".$QueryNews." ORDER BY bс_ac DESC ,date_Beg"  ;
 }
 
 
@@ -534,6 +536,9 @@ if(($id_theme!='')){
 						$ids_country = array_unique($ids_country);	
 						//удаляем пустые 
 						$ids_country = array_diff($ids_country, array('','0'));					
+
+						$allCountryInTheme = array_unique(array_merge($allCountryInTheme,$ids_country));
+						//$allCountryInTheme
 						$row['country'] = array();
 						//var_dump($ids_country);
 						foreach($ids_country as $id_c){
@@ -669,10 +674,18 @@ if(($id_theme!='')){
 	
 	
 	?>
+<?
+//все страны к теме	
+//echo "<br><br><br><br><br><br>kkkkkkkkkkkk";
+$allCountryInThemeAss = array();
+foreach($allCountryInTheme as $id_c){
+		$allCountryInThemeAss[$id_c]=$CountryArr[$id_c];
 	
-	
-	
-	
+}
+//$allCountryInThemeAss = array_merge($allCountryInThemeAssNew,$allCountryInThemeAss);
+//var_dump($allCountryInThemeAss);
+?>	
+
 <html>
 <head>
 	<title><?if($titleStr !=''){ echo $titleStr; }else{ echo "Все важные даты и события мировой истории";}?></title>
@@ -1364,8 +1377,8 @@ echo "alPiks-".$alPiks."<br>";*/
 							// echo $sledScalePl;
 							//echo $scale;
 						?>
-						<div style='border:3px solid purple; margin-bottom:5px; color:purple; font-size:35px; cursor:pointer;' >
-								<span onclick="ChangeScale('+')" style='font-weight:bold; text-decoration:none; color:purple;' >&nbsp;+&nbsp;</span>
+						<div style='border-right:3px solid black; border-bottom:3px solid black; background:purple; border-radius:30px; margin-bottom:5px; color:purple; font-size:35px; cursor:pointer;' >
+								<span onclick="ChangeScale('+')" style='font-weight:bold; text-decoration:none; color:white;' ><b>&nbsp;+&nbsp;</b></span>
 						</div>
 						<? 
 							if($scale <= 1){
@@ -1376,8 +1389,8 @@ echo "alPiks-".$alPiks."<br>";*/
 							$sledScaleMin=str_replace(',','.',$sledScaleMin); 
 							
 						?>
-						<div style='border:3px solid purple; color:purple; font-size:35px; cursor:pointer;'><?/*<a href='index.php?scale=<?=$sledScaleMin?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;&ndash;&nbsp;</a>*/?>
-							<span onclick="ChangeScale('-')" style='font-weight:bold; text-decoration:none; color:purple;' >&nbsp;-&nbsp;</span>
+						<div style='border-right:3px solid black; border-bottom:3px solid black; background:purple; border-radius:30px; color:purple; font-size:35px; cursor:pointer;'><?/*<a href='index.php?scale=<?=$sledScaleMin?>' style='font-weight:bold; text-decoration:none; color:green;' >&nbsp;&ndash;&nbsp;</a>*/?>
+							<span onclick="ChangeScale('-')" style='font-weight:bold; text-decoration:none; color:white;' ><b>&nbsp;&ndash;&nbsp;</b></span>
 						</div>
 					</div>
 			
@@ -1944,8 +1957,8 @@ echo "alPiks-".$alPiks."<br>";*/
 
 
 				<!--<div style="z-index:100; position:absolute; top:-5px; margin-left: 2%;" title='Маштаб'>-->
-					<div title="растянуть/сжать" style='top:60px; margin-left: 4%; z-index:100; position:absolute; border:3px solid purple; margin-bottom:5px; color:purple; font-size:35px; cursor:pointer;' >
-							<span onclick="ChangeDateTableSize()" style='font-weight:bold; text-decoration:none; color:purple;' >&nbsp;↕&nbsp;</span>
+					<div title="растянуть/сжать" style='top:60px; margin-left: 4%; z-index:100; position:absolute;  border-right:3px solid black; border-bottom:3px solid black; background:purple; border-radius:30px; margin-bottom:5px; color:purple; font-size:35px; cursor:pointer;' >
+							<span onclick="ChangeDateTableSize()" style='font-weight:bold; text-decoration:none; color:white;' >&nbsp;↕&nbsp;</span>
 					</div>
 
 			<?if(count($arrEv)>0){?>
@@ -1957,17 +1970,25 @@ echo "alPiks-".$alPiks."<br>";*/
 				<table  border='0'  cellspacing='0'   ><!--style='text-align:center;'-->
 				<?
 				
-				for($i=0; $i<count($arrEv); $i++ ){		?>
+				for($i=0; $i<count($arrEv); $i++ ){		
+						//определяем до нашей эры или нет
+						$bс_ac1=""; $bс_ac2="";
+						if($arrEv[$i]['bс_ac'] !=''){
+							$dd_bс_ac = explode("-", $arrEv[$i]['bс_ac']);
+							if($dd_bс_ac[0]){$bс_ac1="д.н.э.";}
+							if($dd_bс_ac[1] AND $arrEv[$i]['dateE1']!=''){$bс_ac2="д.н.э.";}
+						}
+					?>
 					<!--<div id='<?=$arrEv[$i]['Url_ins']?>-DivNews' ><a href='index.php?c=soobsh&id_soobsh=<?=$arrEv[$i]['Url_ins']?>' title='<?=$titl_nT?>' ><?=$titl_nE?> :  <?=$dat[0]?></a></div>-->
 					<tr <?if($i%2==0){?> style="background-color:#eee"<?}?>  >
 						<?if($arrEv[$i]['dateE1'] != ''){ $title='Дата начала события';}else{ $title='Дата события';}?>
 						<td   style='text-align:right; padding:3px;' title='<?=$title?>' >
-							<?=$arrEv[$i]['dateB1']?>
+							<?=$arrEv[$i]['dateB1']?><?=$bс_ac1?>
 						</td>
 						
 						
 						<td style='text-align:right; padding:3px; position:relative; border-right:2px solid #999;'  <?if($arrEv[$i]['dateE1'] != ''){ echo " title='Дата окончания события' ";}?>  >
-							<?=$arrEv[$i]['dateE1']?> 
+							<?=$arrEv[$i]['dateE1']?><?=$bс_ac2?> 
 						</td>	
 						<td style=' padding:0px; margin:0px;'  >
 								   <div style='position:relative;' >
@@ -2169,7 +2190,8 @@ function OldGraphic(){
 				//id='tableDiv'
 	document.getElementById('tableDiv').style.display = "block";
 
-	$(document).ready(function() { 
+	$(document).ready(function() {
+
 		//передаем массив в js
 		//var arrEv = jQuery.parseJSON('<?=json_encode($arrEv)?>');
 	
@@ -2653,6 +2675,7 @@ function GroupEventInLine(){
 		//var arrEv_Once = [];
 		//var arrEv_Period = [];
 		for(var i=0; i<arrEv.length; i++ ){
+			if(arrEv[i]['bс_ac']!=""){continue;}
 			if(arrEv[i]['date_End'] =='0000-00-00 00:00:00'){
 				arrEv_Once.push(arrEv[i]);
 			}else{
@@ -2747,10 +2770,10 @@ function GroupEventInLine(){
 			if(supportsSVG){
 				if(nun_years ==0){nun_years =1;}
 				GroupEventInLine();
-				console.log('--------------nun_years');
+			/*	console.log('--------------nun_years');
                 console.log(nun_years);
 				console.log(year_begin);
-                console.log(yearB);
+                console.log(yearB);*/
 				//console.log(JSON.stringify(arrEv));
 				var offset =0; //отступ в строках
 				
@@ -3195,7 +3218,7 @@ function ShowOnGraph(id,n){
 		}
 	}	
 	
- console.log("ShowOnGraph idN"+idN)
+ //console.log("ShowOnGraph idN"+idN)
 	/*var elll = document.getElementById('event_win_'+id);
 	//elll.style['border'] = '2px solid red';
 	elll.style.fill='red';
@@ -3212,7 +3235,7 @@ function ShowOnGraph(id,n){
 			$("html,body #div_svg").animate({scrollTop: 0,scrollLeft:0},0);
 		
 		//console.log("ShowOnGraph  scrollTop"+$(elll).offset().top-200 + " -scrollLeft- " +$(elll).offset().left-300)
-console.log($(elll).offset().top-200);
+//console.log($(elll).offset().top-200);
 
 		$("html,body #div_svg").animate({scrollTop: $(elll).offset().top-200,
 				scrollLeft: $(elll).offset().left-300
@@ -3225,15 +3248,15 @@ console.log($(elll).offset().top-200);
 					pageY: $(elll).offset().top - $("#div_svg").offset().top
 				}*/
 				
-				console.log($("#div_svg"));
+		//		console.log($("#div_svg"));
 
-				console.log("--------------event1-----------------");
-				console.log(arrEv[n]);
-				console.log(arrEv[n]['date_Beg'].split(" ")[0] +"   --- " +arrEv[n]['date_End'].split(" ")[0]);
+		//		console.log("--------------event1-----------------");
+		//		console.log(arrEv[n]);
+		//		console.log(arrEv[n]['date_Beg'].split(" ")[0] +"   --- " +arrEv[n]['date_End'].split(" ")[0]);
 				var arrDb = arrEv[n]['date_Beg'].split(" ")[0].split("-");
 				var arrDe = arrEv[n]['date_End'].split(" ")[0].split("-");
 				var Datee = (arrDb[2]!="00"?arrDb[2]+".":"") + (arrDb[1]!="00"?arrDb[1]+".":"")+(arrDb[0]!="0000"?arrDb[0]:"")+(arrEv[n]['date_End'].split(" ")[0]=="0000-00-00"?"":"-")+(arrDe[2]!="00"?arrDe[2]+".":"") + (arrDe[1]!="00"?arrDe[1]+".":"")+(arrDe[0]!="0000"?arrDe[0]:"")+" | " ;//
-				console.log(Datee);
+		//		console.log(Datee);
 
 				//console.log(arrEv);
 				showEvent(null,[[id,arrEv[n]['event']]],id,elll,Datee)
@@ -3246,7 +3269,7 @@ console.log($(elll).offset().top-200);
 				//$('#'+idN).mouseover();
 				//console.log($('#'+idN));
 				//$(elll).mouseover();
-				console.log('showEventPerm(id)-'+id+"-- "+'#'+idN);
+			//	console.log('showEventPerm(id)-'+id+"-- "+'#'+idN);
 				// showEvent(event,arrText)
 	}
 
@@ -3318,8 +3341,10 @@ console.log($(elll).offset().top-200);
         	//вытаскиваем все темы новостей (если в дальнейшем будет висеть, то сделать при клике на ссылку)
             //$query = "SELECT * FROM  Theme_of_Events ORDER BY Theme";
             //ISNULL(NULLIF(map_objects,'')) as map_objects
-            $query = "SELECT * FROM  Theme_of_Events WHERE img <>'' ORDER BY prior ";
             
+//вытаскиваем войны
+           // $query = "SELECT * FROM  Theme_of_Events WHERE img <>'' ORDER BY prior ";
+            $query = "SELECT * FROM  Theme_of_Events WHERE img <>'' AND prior=10 ORDER BY Theme ";
                         
             $result = mysql_query($query) or die(mysql_error());
                 $n = mysql_num_rows($result);
@@ -3339,7 +3364,7 @@ console.log($(elll).offset().top-200);
             
             if(count($arrTh)>0){
             ?>
-            <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Последние темы</h3>
+            <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Войны</h3>
             <div style="padding:7px; border:5px solid green; overflow:auto; border-radius: 15px; margin: 10px 20px 20px 20px;" >    
                 <ul class="foto_albom foto50Text">
 						<? foreach ($arrTh as $theme):?>
@@ -3366,8 +3391,44 @@ console.log($(elll).offset().top-200);
 			<?
             }
     
-    
-    
+    //вытаскиваем империи
+           // $query = "SELECT * FROM  Theme_of_Events WHERE img <>'' ORDER BY prior ";
+            $query = "SELECT * FROM  Theme_of_Events WHERE img <>'' AND prior=9 ORDER BY Theme ";
+                        
+            $result = mysql_query($query) or die(mysql_error());
+                $n = mysql_num_rows($result);
+            if($n >0){
+                $arrTh1 = array();
+                for ($i = 0; $i < $n; $i++)
+                {
+                    $row = mysql_fetch_assoc($result);		
+                    $arrTh1[] = $row;
+                    if($row['id'] == $_GET['id_theme']){  $theme = $row['Theme'];}
+                    
+                    //if($row['id'] ==$SpeechArr[0]['id_avtor']){ $titleStr = $row['Who'];	}
+                }
+            }
+               if(count($arrTh)>0){
+            ?>
+            <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Империи</h3>
+            <div style="padding:7px; border:5px solid green; overflow:auto; border-radius: 15px; margin: 10px 20px 20px 20px;" >    
+                <ul class="foto_albom foto50Text">
+						<? foreach ($arrTh1 as $theme):?>
+							<li>
+								 <!--width="10px" height="10px"-->
+								 <!--<span style="cursor:pointer;" title="<?=$theme['Theme']?>" onclick="GotoTheme('th-<?=$theme['id']?>')">-->
+								 <a href='index.php?id_theme=<?=$theme['id']?>' title='<?=$theme['Theme']?>' >	
+								 	<div class="foto_50" style="border-radius: 15px; overflow:hidden;"><img style="width:250px;"  src="img/themes/<?=$theme['img']?>" /></div><br />
+								 	<?=$theme['Theme']?>
+								 </a>
+								 <!--</span>-->
+							</li>	
+						<?	endforeach; ?>
+
+                 </ul>
+             </div>        
+			<?
+            } 
     
     }?>
 

@@ -936,6 +936,7 @@ var_dump($AllInfoDateArr);
 						echo "<td><input size='8' type='text' id='date-".$da['id']."' value='".$da['date']."'</td>";
 						echo "<td><input size='8' type='text' id='dateE-".$da['id']."' value='".$da['dateE']."'</td>";
 						echo "<td><input size='50' type='text' id='event-".$da['id']."' value='".$da['event']."'</td>";
+						echo "<td><input size='1' type='text' id='bc_ac-".$da['id']."' value=''</td>";
 						echo "<td><b onclick='delString(this)' id='Del-".$da['id']."'>D</b>-<b onclick='editString(this)' id='Ed-".$da['id']."' >E</b></td>";
 						echo "<td $style >".$da['allevent']."</td>";
 						
@@ -981,6 +982,7 @@ var_dump($AllInfoDateArr);
 			var dateBeg = document.getElementById('date-'+id).value;
 			var dateEnd = document.getElementById('dateE-'+id).value;
 			var event = document.getElementById('event-'+id).value;
+			var bc_ac = document.getElementById('bc_ac-'+id).value;
 			
 			alert("id-"+id+" dateBeg-"+dateBeg+" dateEnd-"+dateEnd+" event-"+event);
 			if (id != 0){
@@ -990,7 +992,7 @@ var_dump($AllInfoDateArr);
 				$.ajax({
 				  async: false, 
 				  url: 'blocks/dinamic_scripts/Edit_Del_Date.php',
-				  data: {proc:"edit",id:id,dateBeg:dateBeg,dateEnd:dateEnd,event:event},
+				  data: {proc:"edit",id:id,dateBeg:dateBeg,dateEnd:dateEnd,event:event,bc_ac:bc_ac},
 				  type: "POST",
 				  success: function(data) {  arr = data; }//,
 				//dataType: 'json'

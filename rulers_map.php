@@ -114,8 +114,10 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 	 SVGObj.width.baseVal.value=w;
 	 SVGObj.height.baseVal.value=h;
 	 SVGObj.setAttribute("height",h);
+
 	// SVGObj.setAttribute('cursor','pointer');
 	 SVGObj.style.fill=fill;
+	  SVGObj.setAttribute("class","changeColor");
 	 return SVGObj;
 	}
 
@@ -193,7 +195,7 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 	var id_f = 'clippath';
 
 	//makeFoto(begPoint,id_f);
-
+/*
 
 		var arrRulers = 
 		[
@@ -216,7 +218,7 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 				]
 			]
 		];	
-
+*/
 /*	var arrRulers = 
 		[
 			11,'первый правитель','император1','07.2008-09.2011','png-0-0-background.png',
@@ -255,13 +257,14 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 		var curPoint_in = clonePoint(curPoint_i)
 		curPoint_in.y = curPoint_in.y+fotoHeight + 80;
 		for(var i=0; i<arr.length; i++){
+			var links = arr[i][5].split("|");
 
 
 			//определяем насколько сдвинуть, в зависимости от того сколько наследников у предыдушего
 			var x = 1; 
 			if(arr[i-1]){
-				if(arr[i-1][5].length >1){
-					x= arr[i-1][5].length;
+				if(arr[i-1][6].length >1){
+					x= arr[i-1][6].length;
 				}
 			}
 			/*if(arr[i+1]){
@@ -290,21 +293,36 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 				console.log(arr[i])
 			
 			//инфа о личности
-			svgR.appendChild(textP(curPoint_in.x-30,curPoint_in.y+10,'18',arr[i][1],'white'));
-			svgR.appendChild(textP(curPoint_in.x-25,curPoint_in.y+23,'13',arr[i][2],'white'));
-			svgR.appendChild(textP(curPoint_in.x,curPoint_in.y+33+fotoHeight,'11',arr[i][3],'#ccc'));
+			//svgR.appendChild(textP(curPoint_in.x-30,curPoint_in.y+10,'18',arr[i][1]+"-***-"+arr[i][5],'white'));
+			svgR.appendChild(textP(curPoint_in.x-30,curPoint_in.y+5,'18',arr[i][1],'white'));
+			//svgR.appendChild(textP(curPoint_in.x-25,curPoint_in.y+23,'13',arr[i][2],'white'));
+			var arrT =  arr[i][2].split(":");
+			svgR.appendChild(textP(curPoint_in.x-25,curPoint_in.y+15,'13',arrT[0],'white'));
+			svgR.appendChild(textP(curPoint_in.x-25,curPoint_in.y+27,'13',arrT[1],'white'));
+			svgR.appendChild(textP(curPoint_in.x,curPoint_in.y+35+fotoHeight,'11',arr[i][3],'#ccc'));
 
-			//ссылка на показ подданых
-			svgR.appendChild(rectP(curPoint_in.x-36,curPoint_in.y+30,17,60,'green'));
-			var txtObj = textP(curPoint_in.x-33,curPoint_in.y+40,'14','подданые','red','underline');
-			txtObj.setAttribute('cursor','pointer');
-			(function(id,svg_id){ $(txtObj).click(function(e){alert("-ооо-"+id+svg_id); createNewSvg(e,id,this,svg_id,'poddan','midle',0); });})(arr[i][0],svgR.id);
-			svgR.appendChild(txtObj);
-			//ссылка на родственные связи
-			svgR.appendChild(rectP(curPoint_in.x+83,curPoint_in.y+30,17,50,'green'));
-			var txtObj = textP(curPoint_in.x+88,curPoint_in.y+40,'14','родня','red','underline');
-			txtObj.setAttribute('cursor','pointer');
-			(function(id,svg_id){ $(txtObj).click(function(e){alert("-ррррр-"+id+svg_id); createNewSvg(e,id,this,svg_id,'relatives','last',0); });})(arr[i][0],svgR.id);
+
+			
+			//надо будет подумать о показе перед через links[3]
+			if(parseInt(links[1])){
+				//ссылка на показ подданых
+				svgR.appendChild(rectP(curPoint_in.x-36,curPoint_in.y+30,17,60,'green'));
+				var txtObj = textP(curPoint_in.x-33,curPoint_in.y+40,'14','подданые','red','underline');
+				txtObj.setAttribute('cursor','pointer');				
+				(function(id,svg_id){ $(txtObj).click(function(e){ createNewSvg(e,id,this,svg_id,'poddan','midle',0); });})(arr[i][0],svgR.id);
+				svgR.appendChild(txtObj);				
+			}
+
+			var wh = 'last';
+			//console.log('links -------------------------------------links')
+			//console.log(links);
+			if(!parseInt(links[2]) && parseInt(links[4])){ wh = 'first';}	
+				//ссылка на родственные связи
+				//if(links[2]){ var wh = 'last'}else if(){}
+				svgR.appendChild(rectP(curPoint_in.x+83,curPoint_in.y+30,17,50,'green'));
+				var txtObj = textP(curPoint_in.x+88,curPoint_in.y+40,'14','родня','red','underline');
+				txtObj.setAttribute('cursor','pointer');					
+			(function(id,svg_id,wh){ $(txtObj).click(function(e){ createNewSvg(e,id,this,svg_id,'relatives',wh,0); });})(arr[i][0],svgR.id,wh);
 			svgR.appendChild(txtObj);
 			//makeFoto(curPoint,'clipPath'+arr[0]);
 			var img = arr[i][4]; if(img==''){img='nofoto.jpg'}
@@ -317,8 +335,8 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 			svgR.appendChild(lineP(curPoint_i.x+fotoWidth/2,curPoint_i.y+fotoHeight+40,curPoint_in.x+fotoWidth/2,curPoint_in.y,'red'));
 				
 			//console.log(arr[3])
-			if(arr[i][5] && arr[i][5].length >0){  //
-				rekursDrowRuler(svgR,arr[i][5],curPoint_in);
+			if(arr[i][6] && arr[i][6].length >0){  //
+				rekursDrowRuler(svgR,arr[i][6],curPoint_in);
 			}else{
 				arr[i].push(curPoint_in.x+'-'+curPoint_in.y);
 				LastestRul.push(arr[i]);
@@ -345,15 +363,21 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 		//начальная ссылка
 		var X = curPoint.x;
 		var Y = curPoint.y+fotoHeight+20;
-					console.log('curPoint 00000000000000000000000000000 curPoint arr[i+1][3].length------------')
-			console.log(curPoint)
-			svgR.appendChild(rectP(X+10,Y,20,90,'green'));
-			var txtObj = textP(X+18,Y+10,'16','прогрузить','red','underline');
-			txtObj.setAttribute('cursor','pointer');
-			console.log('FirstRulOb FirstRulOb FirstRulOb FirstRulOb');
-			console.log(FirstRulOb);
-			(function(id,svg_id){ $(txtObj).click(function(e){alert("--"+id+svg_id); createNewSvg(e,id,this,svg_id,svgR.getAttribute('who'),'first',0); });})(FirstRulOb.pop()[0],svgR.id);
-			svgR.appendChild(txtObj);
+			//		console.log('curPoint 00000000000000000000000000000 curPoint arr[i+1][3].length------------')
+			//console.log(curPoint)
+			var first = FirstRulOb.pop();
+			//console.log('links -------------------------------------links')
+			//console.log(first);
+			var links = first[5].split("|");
+			if(parseInt(links[0])){
+				svgR.appendChild(rectP(X+10,Y,20,90,'green'));
+				var txtObj = textP(X+18,Y+10,'16','прогрузить','red','underline');
+				txtObj.setAttribute('cursor','pointer');
+				console.log('FirstRulOb FirstRulOb FirstRulOb FirstRulOb');
+				console.log(FirstRulOb);
+				(function(id,svg_id){ $(txtObj).click(function(e){ createNewSvg(e,id,this,svg_id,svgR.getAttribute('who'),'first',0); });})(first[0],svgR.id);
+				svgR.appendChild(txtObj);
+			}
 		
 
 		var LastestRul = LastestRulOb.pop();
@@ -361,16 +385,20 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 		//конечные ссылки
 		for(var i=0; i<LastestRul.length; i++){
 			
-			var lastX = parseInt(LastestRul[i][6].split("-")[0]);
-			var lastY = parseInt(LastestRul[i][6].split("-")[1]);
+			var lastX = parseInt(LastestRul[i][7].split("-")[0]);
+			var lastY = parseInt(LastestRul[i][7].split("-")[1]);
 			console.log('lastX-'+lastX+' lastY-'+lastY)
 			svgR.appendChild(lineP(lastX+fotoWidth/2,lastY+fotoHeight+40,lastX+fotoWidth/2,lastY+fotoHeight+80,'red'));
 			//svgR.appendChild(lineP(100,100,1000,1000,'green'));
-			svgR.appendChild(rectP(lastX+10,lastY+fotoHeight+80,20,90,'green'));
-			var txtObj = textP(lastX+18,lastY+fotoHeight+90,'16','прогрузить','red','underline');
-			txtObj.setAttribute('cursor','pointer');
-			(function(id,svg_id){$(txtObj).click(function(e){ alert("--"+id+svg_id);  createNewSvg(e,id,this,svg_id,svgR.getAttribute('who'),'last',0); });})(LastestRul[i][0],svgR.id)
-			svgR.appendChild(txtObj);
+			var links = LastestRul[i][5].split("|");
+			if(parseInt(links[0])){
+				svgR.appendChild(rectP(lastX+10,lastY+fotoHeight+80,20,90,'green'));
+				var txtObj = textP(lastX+18,lastY+fotoHeight+90,'16','прогрузить','red','underline');
+				txtObj.setAttribute('cursor','pointer');
+				var links = LastestRul[i][5].split("|");
+				(function(id,svg_id){$(txtObj).click(function(e){  createNewSvg(e,id,this,svg_id,svgR.getAttribute('who'),'last',0); });})(LastestRul[i][0],svgR.id)
+				svgR.appendChild(txtObj);
+			}
 			
 //rect=function(x,y,h,w,fill){
 		}
@@ -380,12 +408,20 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 
 	var nextId=0;//общий номер увеличения id svg
 
+	//выбор страны в select
+	function changeCountry(){
+		//alert('kkkkk');
+		//alert(this.options[this.selectedIndex].value);
+		createNewSvg(null,0,null,'svg_rulers','rull','midle',this.options[this.selectedIndex].value);
+	}
+
 	function createNewSvg(e,id,obj,svg_id,who,where,id_country){
 		//who - какие свзяи ищем (rull - правителей, relatives - родственные, poddan - подданых)
 		//where - где находится тот с кого искать (first,midle,last)
 		
 
-			alert('id -'+id+' svg_id-'+svg_id+' who-'+who+' where-'+where)
+		console.log('arrCountrys ++++++++++++++++++++ arrCountrys arrCountrys arrCountrys')
+		console.log('id -'+id+' svg_id-'+svg_id+' who-'+who+' where-'+where+' id_country'+id_country)
 		//alert(goal);
 		var opt = document.createElement('div');
 		//opt.setAttribute('style', 'background:blue;');
@@ -398,30 +434,61 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 		svg.setAttribute('who', who);
 		if(!svg_id){
 			//страны (в цикле)
-				var arrCountrys = ['Россия','Великобритания','США','Cаудовская Аравия'];
+					//заносим страны в js мвссив
+				//	var arrCountrys = JSON.parse('<?=json_encode($allCountryInThemeAss)?>');	
+
+				//var arrCountrys = {1:'Россия',2:'Великобритания',3:'США',4:'Cаудовская Аравия'};
 				//var x = 230;
 				var y = 7;
 				console.log('arrCountrys arrCountrys arrCountrys arrCountrys')
 				//svg.appendChild(textP(20,20,'23',whoText,'white'));
-				for(var i=0; i<arrCountrys.length;i++){
+				//for(var i=0; i<arrCountrys.length;i++){
+				
+
+					var diSel = document.createElement('div');
+					var select = document.createElement('select');
+					select.onchange = changeCountry;
+					$(select).css({top: -5, left: 11, position:'absolute'});
+					//select.innerHTML = "span";
+//rulers_div
+					diSel.appendChild(select);
+					
+					//di.appendChild(diSel);
+					$('#rulers_div').append(diSel);
+				
+
+				for (var i in arrCountrys){
 					//console.log(i+'-'+x);
 					var p = 10;
 					//if(i){var leng = arrCountrys[i-1].length;}else{leng =}
 					//x = x+30+arrCountrys[i].length*p;
 					
+					
 					svg.appendChild(rectP(220,y,17,+arrCountrys[i].length*p+15,'green'));
 					var txtObj = textP(220+5,y+13,'20',arrCountrys[i],'red','underline');
 					txtObj.setAttribute('cursor','pointer');
-					(function(id,svg_id){ $(txtObj).click(function(e){alert("-&&&&&&&&&&&&&&&-"+id+svg_id); createNewSvg(e,id,this,svg_id,'rull','midle',0); });})(0,'svg_rulers');
+					(function(id,svg_id,i){ $(txtObj).click(function(e){ createNewSvg(e,0,null,svg_id,'rull','midle',i); });})(0,'svg_rulers',i);
 					svg.appendChild(txtObj);
 					y= y+25
 					//x = x+arrCountrys[i].length*p+50;
+					//createNewSvg(null,0,null,null,'rull','midle',i)
+
+					/*obj.parentNode.innerHTML = "<select id='"+id+"' onChange='ChangeCategory(this)' ><option value='' >выберите категорию</option><?foreach($CategoryArr as $k=>$th){?><option value='<?=$k?>' ><?=$th?></option><?}?></select>";*/
+
+
+					myOption = document.createElement("option");
+					myOption.text = arrCountrys[i];
+					myOption.value = i;
+					select.appendChild(myOption);
+
+
 				}
 
 
 			svg.setAttribute('id', 'svg_rulers');
 			opt.setAttribute('style', 'background:blue;');
 		}else{
+			$(opt).addClass('remCouSel')
 			nextId++;
 			svg.setAttribute('id', svg_id+nextId);
 			opt.setAttribute('style', 'background:blue; opacity: 0.92');
@@ -437,6 +504,7 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 		var whoText = '';
 		if(who=='rull'){
 			whoText = 'Главы государства';
+			svg.appendChild(textP(30,40,'23',arrCountrys[id_country],'white'));
 		}else if(who=='relatives'){
 			whoText = 'Родственные связи';
 		}else if(who=='poddan'){
@@ -446,6 +514,7 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 	
 		//вытаскиваем массив правителей/знати
 		var arrRulers = getRullersHttp(id,who,where,id_country);
+		if(!arrRulers){ return;}
 
 		var arr = [];
 		LastestRulOb.push(arr);
@@ -464,12 +533,17 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 			
 
 			if(!svg_id){
-				$('#rulers_div_inn').append(opt)				
+				$('#rulers_div_inn').append(opt)
+				//alert('jj');				
 			}else{
-				$('#'+svg_id).prev().append(opt)				
+				//$('#'+svg_id).prev().html('');
+				if(svg_id=='svg_rulers'){ $('.remCouSel').html('');}
+					
+				
+				$('#'+svg_id).prev().prepend(opt)				
 			}
 
-			changeSizeOfRulersMap();
+			changeSizeOfRulersMap(svg_id);
 	}
 
 
@@ -478,24 +552,30 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 		//who - какие свзяи ищем (rull - правителей, relatives - родственные, poddan - подданых)
 		//where - где находится тот с кого искать (first,midle,last)
 		//id_country = 2;
-		period = "10-10-1991 10-10-2003";
+		//period = "10-10-1991 10-10-2003";
+
+		console.log('getRullersHttp ++++++++++++++++++++ getRullersHttp getRullersHttp getRullersHttp')
+		console.log('id_rul -'+id_rul+' id_country-'+id_country+' who-'+who+' period-'+period);
 
 		var arr;
 		$.ajax({
 			async: false, 
+			//cache: false,
 			url: 'blocks/dinamic_scripts/RulersMap_Service.php',
 		 	data: {id_rul:id_rul,who:who,where:where,id_country:id_country,period:period},
 		  	type: "POST",
-		  	success: function(data) {  arr = data; alert(arr);}
+		  	success: function(data) {  arr = data; /*alert(arr);*/}
 		  	,dataType: 'json'
 		 })
 		console.log("777777777777777777777777777777777777777777777");
 		console.log(arr);
 
-		if(!arr[0]){
-			alert("связей не найдено!");
+		if(arr){
+			if(!arr[0]){
+				alert("связей не найдено!");
+			}
 		}
-		return arr[0];
+		 if(arr) {return arr[0];}else{return null;}
 		//return arrRulers;
 	};
 
@@ -506,12 +586,41 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 	rekursDrowRuler(svgRul,[arrRulers],curPoint);
 	DrowLastRuler(svgRul);*/
 
-	createNewSvg(null,0,null,null,'rull','midle',2)
+	                //console.log(nun_years);
+				//console.log(year_begin);
+
+	
+	              //  console.log(nun_years);
+				//console.log(year_begin);
+		//создаем самый первый svg с правителями по периоду		
+	var arrCountrys;
+		$(document).ready(function() {
+			period = "01-01-"+year_begin+" 31-12-"+(year_begin+nun_years);
+			console.log("period-------------------period-period-period-period-"+period);
+			arrCountrys = JSON.parse('<?=json_encode($allCountryInThemeAss)?>');
+			//var arrCn = arrCountrys.shift();
+			console.log(arrCountrys);
+			if(arrCountrys[3]){
+				createNewSvg(null,0,null,null,'rull','midle',3)
+			}else{
+				var k = 0;
+				for(var i in arrCountrys){
+					if(k){ break;}
+					createNewSvg(null,0,null,null,'rull','midle',i)
+					k = 1;
+				}
+				
+
+			}
+
+			
+		});
 		//who - какие свзяи ищем (rull - правителей, relatives - родственные, poddan - подданых)
 		//where - где находится тот с кого искать (first,midle,last)
 
-	
-	function changeSizeOfRulersMap(){
+	var started = false;
+	function changeSizeOfRulersMap(svg_id){
+
 		
 		rulerWindWidth = parseInt(maxXPos) +200;
 		//if(rulerWindWidth > 900){ rulerWindWidth= 900; 	}
@@ -534,9 +643,34 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 				if(parseInt($(svg).css('width')) < (parseInt(rulerWindWidth)+300)){
 					$(svg).width((parseInt(rulerWindWidth)+300));
 				}
+
+
+				//console.log("-----------------changeSizeOfRulersMap----------changeSizeOfRulersMap-----");
+				//console.log($("#"+svg_id).position());
+				if($("#"+svg_id).position()){
+					//alert($("#"+svg_id).position().left);
+					$(svg).width($("#"+svg_id).position().left+300);
+				}
 				
 				//alert(svg.getAttribute('width'))
 			},300);
+
+			
+
+		var colorRect = "green";
+
+		if(!started){
+			setInterval(function(){
+				//$(".changeColor").css("color","red");
+				//$(".changeColor").attr('fill',"red");
+				if(colorRect == "blue"){colorRect = "green";}else{colorRect = "blue";}
+				$(".changeColor").css({ fill: colorRect});
+				//console.log($(".changeColor"));
+				started = true;
+			},500);
+		}
+
+
 
 
 		});		
@@ -549,6 +683,20 @@ var svgRul = document.getElementById("svg_rulers");//.getSVGDocument();
 
 	console.log('LastestRulENDDDDDD');
 		console.log(LastestRul);
+
+			//перемещение на середину 
+			
+			setTimeout(function(){ 
+				var  div_svg =$("html,body #div_svg"); 
+				//var  svg_table =$("html,body #svg_table"); 
+				
+				var svg_table = document.getElementById("svg_table");
+
+				$(div_svg).animate({scrollTop: $(div_svg).offset().top-200,
+				scrollLeft:svg_table.getBBox().width/2	}, 100);
+				//alert(svg_table.getBBox().width)
+
+			},2000);	
 
 //createNewSvg()
 

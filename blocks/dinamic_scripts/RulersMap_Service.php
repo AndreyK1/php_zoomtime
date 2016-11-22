@@ -35,9 +35,9 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 		$arrPeriod  = explode(" ", $period);
 		$query = "SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die	 FROM  rulers_subrulers WHERE   id_country = $id_country AND isruler=1 AND 
 			(
-				(date_begRule<STR_TO_DATE('".$arrPeriod[0]."','%d-%m-%Y') AND date_endRule>STR_TO_DATE('".$arrPeriod[0]."','%d-%m-%Y'))   
-				OR (date_begRule<STR_TO_DATE('".$arrPeriod[1]."','%d-%m-%Y') AND date_endRule>STR_TO_DATE('".$arrPeriod[1]."','%d-%m-%Y')) 
-				OR  (date_begRule>STR_TO_DATE('".$arrPeriod[0]."','%d-%m-%Y')  AND date_endRule<STR_TO_DATE('".$arrPeriod[1]."','%d-%m-%Y') )
+				(date_begRule<STR_TO_DATE('".$arrPeriod[0]."','%d-%m-%Y') AND (date_endRule>STR_TO_DATE('".$arrPeriod[0]."','%d-%m-%Y') AND date_endRule<>'0000-00-00' ))   
+				OR (date_begRule<STR_TO_DATE('".$arrPeriod[1]."','%d-%m-%Y') AND (date_endRule>STR_TO_DATE('".$arrPeriod[1]."','%d-%m-%Y') AND date_endRule<>'0000-00-00')) 
+				OR  (date_begRule>STR_TO_DATE('".$arrPeriod[0]."','%d-%m-%Y')  AND (date_endRule<STR_TO_DATE('".$arrPeriod[1]."','%d-%m-%Y') AND date_endRule<>'0000-00-00')) 
 			) ORDER BY date_begRule";
 			//echo $query;
 			$result = mysql_query($query) or die(mysql_error());
@@ -50,9 +50,109 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 					$arrWho[] = $row;
 				}
 
+
+				//проверяем есть ли кто раньше 
+				$arrWho = CheckFirstElementOn($arrWho,"rull",array($id_country,$arrPeriod[0],$arrPeriod[1]));
+
+				//проверяем есть ли кто позже 
+				$arrWho = CheckLastElementOn($arrWho,"rull",array($id_country,$arrPeriod[0],$arrPeriod[1]));
+
+
+ 				$arrWho =CheckPoddAndRelatives($arrWho);
+
 				echo json_encode(StructuringArrayPeriod($arrWho));
 			}
 
+
+	}
+
+	//проверка первого элемента есть ли кто для вывода перед ним
+	function CheckFirstElementOn($arr,$what,$uslov){
+		$n =0;
+		if($what == "rull"){
+				//echo "fffffffff";
+				$query = "SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die	 FROM  rulers_subrulers WHERE id_country = ".$uslov[0]." AND isruler=1 AND date_begRule<STR_TO_DATE('".$arr[0]['date_begRule']."','%Y-%m-%d')"; // AND date_endRule<STR_TO_DATE('".$uslov[2]."','%d-%m-%Y')";
+					
+					//echo $query;
+					$result = mysql_query($query) or die(mysql_error());
+					$n = mysql_num_rows($result);
+		}elseif($what == "rull1"){
+				$query = "SELECT  id,name,titul,foto,date_begRule,date_endRule,date_born,date_die FROM  rulers_subrulers WHERE isruler=1 AND id_country= (SELECT id_country FROM  rulers_subrulers WHERE id=".$arr[0]['id'].") AND date_begRule< (SELECT date_begRule FROM  rulers_subrulers WHERE id=".$arr[0]['id'].") ORDER BY 	date_begRule DESC LIMIT 2 ";
+					$result = mysql_query($query) or die(mysql_error());
+					$n = mysql_num_rows($result);
+					//echo $n;
+		}
+
+					if($n >0){
+						//$arr[0]['name'] = $arr[0]['name']."|1";
+						$arr[0]['links'] ="1";
+					}else{
+							//$arr[0]['name'] = $arr[0]['name']."|0";
+							$arr[0]['links'] ="0";
+					}
+
+		return $arr;
+	}
+
+	//проверка последнего элемента есть ли кто для вывода после него
+	function CheckLastElementOn($arr,$what,$uslov){
+		$n =0;
+		if($what == "rull"){
+				$query = "SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die	 FROM  rulers_subrulers WHERE id_country = ".$uslov[0]." AND isruler=1 AND date_begRule>STR_TO_DATE('".$arr[count($arr)-1]['date_begRule']."','%Y-%m-%d')";//  AND date_endRule>STR_TO_DATE('".$uslov[2]."','%d-%m-%Y')";
+					
+					//echo $query;
+					$result = mysql_query($query) or die(mysql_error());
+					$n = mysql_num_rows($result);
+		}elseif($what == "rull1"){
+				$query = "SELECT  id,name,titul,foto,date_begRule,date_endRule,date_born,date_die FROM  rulers_subrulers WHERE isruler=1 AND id_country= (SELECT id_country FROM  rulers_subrulers WHERE id=".$arr[count($arr)-1]['id'].") AND date_begRule> (SELECT date_begRule FROM  rulers_subrulers WHERE id=".$arr[count($arr)-1]['id'].") ORDER BY 	date_begRule DESC LIMIT 2 ";
+					//echo $query;
+					$result = mysql_query($query) or die(mysql_error());
+					$n = mysql_num_rows($result);
+					//echo $n;
+		}
+
+					if($n >0){
+						//$arr[count($arr)-1]['name'] = $arr[count($arr)-1]['name']."|1";
+						$arr[count($arr)-1]['links'] ="1";
+					}else{
+							//$arr[count($arr)-1]['name'] = $arr[count($arr)-1]['name']."|0";
+							$arr[count($arr)-1]['links'] ="0";
+					}
+
+		return $arr;
+	}
+
+	//проверка у каждого элемента наличие подданых или его подданство и родню
+	function CheckPoddAndRelatives($arr){
+		//$arr[$i]['links']  1|2|3|4|5| есть ли: 1. перед/после первого/последнего еще кто-то 2. есть ли подданые 3. родственики (дети) 4. начальник 5. родитель
+		for ($i=0; $i < count($arr); $i++) { 
+			$np =0;
+			$nr =0;
+				$query = "SELECT  id,id_ruler,id_ancestor,(SELECT count(*) FROM  rulers_subrulers sb2 WHERE sb2.id_ruler = sb1.id) as np, (SELECT count(*) FROM  rulers_subrulers sb3 WHERE sb3.id_ancestor = sb1.id) as nr FROM  rulers_subrulers sb1 WHERE id=".$arr[$i]['id'];
+				//echo $query;
+				$result = mysql_query($query) or die(mysql_error());
+				$n = mysql_num_rows($result);
+					if(!isset($arr[$i]['links'])){
+						$arr[$i]['links'] ="0+";
+					}
+
+					if($n >0){
+						$row = mysql_fetch_assoc($result);
+						//if($row['id_ruler']){$row['np']++;}
+						//if($row['id_ancestor']){$row['nr']++;}
+						
+						//$arr[$i]['titul'] = $arr[$i]['titul']."|".$row['np']."|".$row['nr'];
+
+						$arr[$i]['links'] =$arr[$i]['links']."|".$row['np']."|".$row['nr']."|".$row['id_ruler']."|".$row['id_ancestor'];
+
+					}else{
+							//$arr[$i]['titul'] = $arr[$i]['titul']."|0|0";
+							$arr[$i]['links'] =$arr[$i]['links']."|0|0|".$row['id_ruler']."|".$row['id_ancestor'];
+					}
+
+
+		}
+		return $arr;
 
 	}
 
@@ -65,6 +165,7 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 			$arrIn[]=$arr[$i]['titul']." : ".$arr[$i]['date_begRule']." ".$arr[$i]['date_endRule'];
 			$arrIn[]=$arr[$i]['date_born']." ".$arr[$i]['date_die'];
 			$arrIn[]=$arr[$i]['foto'];
+			$arrIn[]=$arr[$i]['links'];
 			$arrIn[]=array();
 			if(count($arrStr)==0){
 				$arrStr[] = $arrIn;
@@ -87,6 +188,7 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 
 
 	if($id_rul){//значит ищем по персоне
+		//echo "shit";
 		if($who=='poddan'){//если ищем подданых то просто вытаскиваем их
 			$query = "
 			SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die FROM  rulers_subrulers WHERE id=$id_rul
@@ -107,6 +209,8 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 				if(count($arrWho)<2){
 					echo "[]";
 				}else{
+					
+					$arrWho =CheckPoddAndRelatives($arrWho);
 					echo json_encode(StructuringArrayPoddan($arrWho));
 				}
 			}
@@ -143,9 +247,16 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 						$arrWho[] = $row;
 					}
 				}
+
+				//проверяем есть ли кто раньше 
+				$arrWho = CheckFirstElementOn($arrWho,"rull1",array($id_rul));
+				//проверяем есть ли кто позже 
+				//$arrWho = CheckLastElementOn($arrWho,"rull1",array($id_rul));				
+
 				if(count($arrWho)<2){
 					echo "[]";
 				}else{
+					$arrWho =CheckPoddAndRelatives($arrWho);
 					echo json_encode(StructuringArrayPeriod($arrWho));
 				}
 
@@ -176,7 +287,10 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 						$arrWho[] = $row;
 					}
 				}
-				
+
+				//проверяем есть ли кто позже 
+				$arrWho = CheckLastElementOn($arrWho,"rull1",array($id_rul));	
+				$arrWho =CheckPoddAndRelatives($arrWho);
 				if(count($arrWho)<2){
 					echo "[]";
 				}else{
@@ -188,10 +302,11 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 			if($where =='last'){//список заканчивающийся этой персоной
 				$arrWho = array();
 				//достаем самого правителя
-				$query ="SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die FROM  rulers_subrulers WHERE id=$id_rul
+				$query ="SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die,1 as n FROM  rulers_subrulers WHERE id=$id_rul
 						UNION
-					SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die FROM  rulers_subrulers WHERE
+					SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die,(SELECT count(*) FROM rulers_subrulers sb2  WHERE sb2.id_ancestor=sb1.id) as n FROM  rulers_subrulers sb1 WHERE
 					id_ancestor=$id_rul";
+					//SELECT count(*) FROM rulers_subrulers sb2  WHERE sb2.id_ancestor=sb1.id
 
 				$result = mysql_query($query) or die(mysql_error());
 				$n = mysql_num_rows($result);
@@ -203,17 +318,26 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 					}
 				}
 
+				//проверяем есть ли кто раньше 
+				//$arrWho = CheckLastElementOn($arrWho,"relat",array($id_rul));	
+
+				for ($i=0; $i <count($arrWho) ; $i++) { 
+						//$arrWho[$i]['name'] = $arrWho[$i]['name']."|".$arrWho[$i]['n'];
+						$arrWho[$i]['links'] =$arrWho[$i]['n'];
+					}	
+
 				if(count($arrWho)<2){
 					echo "[]";
 				}else{
+					$arrWho =CheckPoddAndRelatives($arrWho);
 					echo json_encode(StructuringArrayPoddan($arrWho));
 				}
 				//echo json_encode(StructuringArrayPeriod($arrWho));	
 
 			}elseif($where =='first'){//список заканчивающийся этой персоной
-					$query ="SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die FROM  rulers_subrulers WHERE id=(SELECT id_ancestor FROM  rulers_subrulers WHERE id=$id_rul)
+					$query ="SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die,(SELECT count(*) FROM rulers_subrulers sb2  WHERE sb2.id=sb1.id_ancestor) as n FROM  rulers_subrulers sb1 WHERE id=(SELECT id_ancestor FROM  rulers_subrulers WHERE id=$id_rul)
 					UNION
-					SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die FROM  rulers_subrulers WHERE id_ancestor= (SELECT id_ancestor FROM  rulers_subrulers WHERE id=$id_rul) AND id_ancestor<>0";	
+					SELECT id,name,titul,foto,date_begRule,date_endRule,date_born,date_die,(SELECT count(*) FROM rulers_subrulers sb2  WHERE sb2.id_ancestor=sb1.id) as n FROM  rulers_subrulers sb1 WHERE id_ancestor= (SELECT id_ancestor FROM  rulers_subrulers WHERE id=$id_rul) AND id_ancestor<>0";	
 
 					$result = mysql_query($query) or die(mysql_error());
 					$n = mysql_num_rows($result);
@@ -225,9 +349,15 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 						}
 					}
 
+					for ($i=0; $i <count($arrWho) ; $i++) { 
+						//$arrWho[$i]['name'] = $arrWho[$i]['name']."|".$arrWho[$i]['n'];
+						$arrWho[$i]['links'] =$arrWho[$i]['n'];
+					}	
+
 					if(count($arrWho)<2){
 						echo "[]";
 					}else{
+						$arrWho =CheckPoddAndRelatives($arrWho);
 						echo json_encode(StructuringArrayPoddan($arrWho));
 					}	
 			}
@@ -246,6 +376,7 @@ header('Content-Type: text/html; charset=utf-8');//собираем всю ин�
 			$arrIn[]=$arr[$i]['titul']." : ".$arr[$i]['date_begRule']." ".$arr[$i]['date_endRule'];
 			$arrIn[]=$arr[$i]['date_born']." ".$arr[$i]['date_die'];
 			$arrIn[]=$arr[$i]['foto'];
+			$arrIn[]=$arr[$i]['links'];
 			$arrIn[]=array();
 			if(count($arrStr)==0){
 				$arrStr[] = $arrIn;
